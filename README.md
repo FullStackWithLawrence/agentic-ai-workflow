@@ -11,8 +11,10 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![hack.d Lawrence McDaniel](https://img.shields.io/badge/hack.d-Lawrence%20McDaniel-orange.svg)](https://lawrencemcdaniel.com)
 
-A Python command-line application that demonstrates how to use OpenAI Api function calling to drive an automated agentic workflow. Also demonstrates how
-to use Docker Compose to containerize your project.
+A Python command-line application that demonstrates how to use OpenAI Api function calling to drive an automated agentic workflow. Additionally, this repo demonstrates
+
+- how to use Docker Compose to containerize your project
+- how to leverage Pydantic for constructing complex JSON objects
 
 Python code is [located here](./app/)
 

@@ -1,21 +1,46 @@
 # -*- coding: utf-8 -*-
-"""Example of using OpenAI's structured outputs with Pydantic models."""
+"""EXPERIMENTAL: OpenAI's structured outputs with Pydantic models."""
 
 import json
-from typing import Optional
+from typing import List, Optional
 
 import openai
-from pydantic import ValidationError
+from pydantic import BaseModel, Field, ValidationError
 
 from app import settings
-from app.function_schemas import (
-    GetCoursesParams,
-    RegisterCourseParams,
-    SpecializationArea,
-)
 from app.logging_config import get_logger
-from app.response_models import Course, CourseSearchResponse, RegistrationResponse
-from app.stackademy import stackademy_app
+from app.stackademy import (
+    StackademyGetCoursesParams,
+    StackademyRegisterCourseParams,
+    StackademySpecializationArea,
+    stackademy_app,
+)
+
+
+class Course(BaseModel):
+    """A course in the Stackademy catalog."""
+
+    course_code: str = Field(description="The unique code for the course")
+    course_name: str = Field(description="The name of the course")
+    description: str = Field(description="Course description")
+    cost: float = Field(description="Cost of the course")
+    prerequisite_course_code: Optional[str] = Field(description="Prerequisite course code", default=None)
+    prerequisite_course_name: Optional[str] = Field(description="Prerequisite course name", default=None)
+
+
+class CourseSearchResponse(BaseModel):
+    """Response model for course search results."""
+
+    courses: List[Course] = Field(description="List of courses matching the search criteria")
+    total_count: int = Field(description="Total number of courses found")
+
+
+class RegistrationResponse(BaseModel):
+    """Response model for course registration."""
+
+    success: bool = Field(description="Whether the registration was successful")
+    message: str = Field(description="Human-readable message about the registration result")
+    registration_id: Optional[str] = Field(description="Unique registration ID if successful", default=None)
 
 
 logger = get_logger(__name__)
@@ -35,13 +60,13 @@ def get_courses_with_structured_output(
         if description:
 
             try:
-                specialization_area = SpecializationArea(description)
+                specialization_area = StackademySpecializationArea(description)
             except ValueError:
                 logger.warning("Invalid specialization area: %s", description)
                 specialization_area = None
 
         # Validate input parameters using Pydantic
-        params = GetCoursesParams(description=specialization_area, max_cost=max_cost)
+        params = StackademyGetCoursesParams(description=specialization_area, max_cost=max_cost)
 
         # Get raw course data
         courses_data = stackademy_app.get_courses(
@@ -68,7 +93,7 @@ def register_course_with_structured_output(course_code: str, email: str, full_na
     """
     try:
         # Validate input parameters
-        params = RegisterCourseParams(course_code=course_code, email=email, full_name=full_name)
+        params = StackademyRegisterCourseParams(course_code=course_code, email=email, full_name=full_name)
 
         # Attempt registration
         success = stackademy_app.register_course(

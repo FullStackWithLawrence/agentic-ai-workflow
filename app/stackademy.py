@@ -1,14 +1,45 @@
 # -*- coding: utf-8 -*-
 """Stackademy application with MySQL database integration."""
 
+from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from openai.types.chat import ChatCompletionFunctionToolParam
+from pydantic import BaseModel, Field
 
 from app.database import db
 from app.exceptions import ConfigurationException
-from app.function_schemas import GetCoursesParams, RegisterCourseParams
 from app.logging_config import get_logger, setup_logging
+
+
+class StackademySpecializationArea(str, Enum):
+    """Available specialization areas for courses."""
+
+    AI = "AI"
+    MOBILE = "mobile"
+    WEB = "web"
+    DATABASE = "database"
+    NETWORK = "network"
+    NEURAL_NETWORKS = "neural networks"
+
+
+class StackademyGetCoursesParams(BaseModel):
+    """Parameters for the get_courses function."""
+
+    max_cost: Optional[float] = Field(
+        None, description="The maximum cost that a student is willing to pay for a course."
+    )
+    description: Optional[StackademySpecializationArea] = Field(
+        None, description="Areas of specialization for courses in the catalogue."
+    )
+
+
+class StackademyRegisterCourseParams(BaseModel):
+    """Parameters for the register_course function."""
+
+    course_code: str = Field(description="The unique code for the course.")
+    email: str = Field(description="The email address of the new user.")
+    full_name: str = Field(description="The full name of the new user.")
 
 
 # Initialize logging
@@ -16,7 +47,7 @@ setup_logging()
 logger = get_logger(__name__)
 
 
-class StackademyApp:
+class Stackademy:
     """Main application class for Stackademy with database functionality."""
 
     def __init__(self):
@@ -30,7 +61,7 @@ class StackademyApp:
             function={
                 "name": "get_courses",
                 "description": "returns up to 10 rows of course detail data, filtered by the maximum cost a student is willing to pay for a course and the area of specialization.",
-                "parameters": GetCoursesParams.model_json_schema(),
+                "parameters": StackademyGetCoursesParams.model_json_schema(),
             },
         )
 
@@ -41,7 +72,7 @@ class StackademyApp:
             function={
                 "name": "register_course",
                 "description": "Register a student in a course with the provided details.",
-                "parameters": RegisterCourseParams.model_json_schema(),
+                "parameters": StackademyRegisterCourseParams.model_json_schema(),
             },
         )
 
@@ -108,6 +139,24 @@ class StackademyApp:
             logger.error("Failed to retrieve courses: %s", e)
             return []
 
+    def verify_course(self, course_code: str) -> bool:
+        """
+        Verify if a course exists in the database.
+        Args:
+            course_code (str): The course code to verify
+        Returns:
+            bool: True if the course exists, False otherwise
+        """
+        query = "SELECT * FROM courses WHERE course_code = %s"
+        logger.info("verify_course() course_code: %s", course_code)
+        try:
+            result = self.db.execute_query(query, (course_code,))
+            return len(result) > 0
+        # pylint: disable=broad-except
+        except Exception as e:
+            logger.error("Failed to retrieve courses: %s", e)
+            return False
+
     def register_course(self, course_code: str, email: str, full_name: str) -> bool:
         """
         Register a user for a course.
@@ -121,6 +170,9 @@ class StackademyApp:
             bool: True if registration is successful, False otherwise
         """
         logger.info("Registering %s (%s) for course %s...", full_name, email, course_code)
+        if not self.verify_course(course_code):
+            logger.error("Course code %s does not exist.", course_code)
+            return False
         return True
 
 
@@ -131,7 +183,7 @@ def main():
 
     try:
         # Initialize the application
-        app = StackademyApp()
+        app = Stackademy()
 
         # Test database connection
         logger.info("Testing database connection...")
@@ -159,7 +211,7 @@ def main():
         logger.error("Application error: %s", e)
 
 
-stackademy_app = StackademyApp()
+stackademy_app = Stackademy()
 
 if __name__ == "__main__":
     main()

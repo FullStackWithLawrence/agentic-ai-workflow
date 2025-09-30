@@ -11,7 +11,6 @@ import openai
 from openai.types.chat import (
     ChatCompletion,
     ChatCompletionAssistantMessageParam,
-    ChatCompletionFunctionToolParam,
     ChatCompletionMessage,
     ChatCompletionMessageFunctionToolCallParam,
     ChatCompletionSystemMessageParam,
@@ -90,7 +89,6 @@ def process_tool_calls(message: ChatCompletionMessage) -> list[str]:
         return functions_called
     for tool_call in message.tool_calls:
 
-        # For function calls, access via type checking
         if tool_call.type == "function":
             function_name = tool_call.function.name
             function_args = json.loads(tool_call.function.arguments)
@@ -101,7 +99,7 @@ def process_tool_calls(message: ChatCompletionMessage) -> list[str]:
                     type="function",
                     function={
                         "name": function_name,
-                        "arguments": tool_call.function.arguments,  # Keep as string, don't parse
+                        "arguments": tool_call.function.arguments,
                     },
                 )
             ]
@@ -113,10 +111,8 @@ def process_tool_calls(message: ChatCompletionMessage) -> list[str]:
             )
             logger.info("Function call detected: %s with args %s", function_name, function_args)
 
-            # Execute the function
             function_result = handle_function_call(function_name, function_args)
 
-            # Add the function result to the conversation
             tool_message = ChatCompletionToolMessageParam(
                 role="tool", content=function_result, tool_call_id=tool_call.id
             )
@@ -132,20 +128,13 @@ def process_tool_calls(message: ChatCompletionMessage) -> list[str]:
 def completion(prompt: str) -> tuple[ChatCompletion, list[str]]:
     """LLM text completion"""
 
-    # Set the OpenAI API key
-    # -------------------------------------------------------------------------
     openai.api_key = settings.OPENAI_API_KEY
-
-    # setup our text completion prompt
-    # -------------------------------------------------------------------------
     model = settings.OPENAI_API_MODEL
     temperature = settings.OPENAI_API_TEMPERATURE
     max_tokens = settings.OPENAI_API_MAX_TOKENS
     messages.append(ChatCompletionUserMessageParam(role="user", content=prompt))
     functions_called = []
 
-    # Call the OpenAI API
-    # -------------------------------------------------------------------------
     response = openai.chat.completions.create(
         model=model,
         messages=messages,
@@ -156,14 +145,10 @@ def completion(prompt: str) -> tuple[ChatCompletion, list[str]]:
     )
     logger.debug("Initial response: %s", response.model_dump())
 
-    # Check if the model wants to call a function
-    # -------------------------------------------------------------------------
     message = response.choices[0].message
-
     while message.tool_calls:
         functions_called = process_tool_calls(message)
 
-        # Make another API call to get the final response
         response = openai.chat.completions.create(
             model=model,
             messages=messages,
