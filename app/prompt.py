@@ -127,20 +127,48 @@ def process_tool_calls(message: ChatCompletionMessage) -> list[str]:
 def completion(prompt: str) -> tuple[ChatCompletion, list[str]]:
     """LLM text completion"""
 
-    openai.api_key = settings.OPENAI_API_KEY
-    model = settings.OPENAI_API_MODEL
-    temperature = settings.OPENAI_API_TEMPERATURE
-    max_tokens = settings.OPENAI_API_MAX_TOKENS
+    def handle_completion(tools, tool_choice) -> ChatCompletion:
+        """Handle the OpenAI chat completion call."""
+        openai.api_key = settings.OPENAI_API_KEY
+        model = settings.OPENAI_API_MODEL
+
+        try:
+            response = openai.chat.completions.create(
+                model=model,
+                messages=messages,
+                tools=tools,
+                tool_choice=tool_choice,
+                temperature=settings.OPENAI_API_TEMPERATURE,
+                max_tokens=settings.OPENAI_API_MAX_TOKENS,
+            )
+            logger.debug("OpenAI response: %s", response.model_dump())
+            return response
+        except openai.RateLimitError as e:
+            logger.error("OpenAI rate limit exceeded: %s", e)
+            raise
+        except openai.APIConnectionError as e:
+            logger.error("OpenAI API connection error: %s", e)
+            raise
+        except openai.AuthenticationError as e:
+            logger.error("OpenAI authentication error: %s", e)
+            raise
+        except openai.BadRequestError as e:
+            logger.error("OpenAI bad request error: %s", e)
+            raise
+        except openai.APIError as e:
+            logger.error("OpenAI API error: %s", e)
+            raise
+        # pylint: disable=broad-except
+        except Exception as e:
+            logger.error("Unexpected error during OpenAI completion: %s", e)
+            raise
+
     messages.append(ChatCompletionUserMessageParam(role="user", content=prompt))
     functions_called = []
 
-    response = openai.chat.completions.create(
-        model=model,
-        messages=messages,
+    response = handle_completion(
         tool_choice={"type": "function", "function": {"name": "get_courses"}},
         tools=[stackademy_app.tool_factory_get_courses()],
-        temperature=temperature,
-        max_tokens=max_tokens,
     )
     logger.debug("Initial response: %s", response.model_dump())
 
@@ -148,12 +176,9 @@ def completion(prompt: str) -> tuple[ChatCompletion, list[str]]:
     while message.tool_calls:
         functions_called = process_tool_calls(message)
 
-        response = openai.chat.completions.create(
-            model=model,
-            messages=messages,
+        response = handle_completion(
             tools=[stackademy_app.tool_factory_get_courses(), stackademy_app.tool_factory_register()],
-            temperature=temperature,
-            max_tokens=max_tokens,
+            tool_choice="auto",
         )
         message = response.choices[0].message
         logger.debug("Updated response: %s", response.model_dump())

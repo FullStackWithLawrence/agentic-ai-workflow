@@ -53,6 +53,16 @@ class Stackademy:
         """Initialize the Stackademy application."""
         self.db = db
 
+    def _log_success(self, message: str) -> None:
+        """
+        Log a success message with colorized console output.
+
+        Args:
+            message: The success message to log
+        """
+        print(f"\033[1;92m{message}\033[0m")
+        logger.info(message)
+
     def tool_factory_get_courses(self) -> ChatCompletionFunctionToolParam:
         """LLM Factory function to create a tool for getting courses"""
         return ChatCompletionFunctionToolParam(
@@ -147,10 +157,14 @@ class Stackademy:
             bool: True if the course exists, False otherwise
         """
         query = "SELECT * FROM courses WHERE course_code = %s"
-        logger.info("verify_course() course_code: %s", course_code)
         try:
             result = self.db.execute_query(query, (course_code,))
-            return len(result) > 0
+            retval = len(result) > 0
+            if retval:
+                logger.info("verified course_code: %s", course_code)
+            else:
+                logger.warning("course_code not found: %s", course_code)
+            return retval
         # pylint: disable=broad-except
         except Exception as e:
             logger.error("Failed to retrieve courses: %s", e)
@@ -173,49 +187,9 @@ class Stackademy:
             logger.error("Course code %s does not exist.", course_code)
             return False
 
-        # Print success message in bold bright green
         success_message = f"Successfully registered {full_name} ({email}) for course {course_code}."
-        print(f"\033[1;92m{success_message}\033[0m")
-        logger.info(success_message)
+        self._log_success(success_message)
         return True
 
 
-def main():
-    """Main function to demonstrate database functionality."""
-    print("Stackademy MySQL Database Demo")
-    print("=" * 50)
-
-    try:
-        # Initialize the application
-        app = Stackademy()
-
-        # Test database connection
-        logger.info("Testing database connection...")
-        if not app.test_database_connection():
-            logger.error("Database connection failed. Please check your configuration.")
-            return
-        logger.info("✅ Database connection successful!")
-
-        # Get courses
-        logger.info("Retrieving courses...")
-        courses = app.get_courses(description="python")
-        for course in courses:
-            logger.info(
-                "  - %s (%s) - %s - $%s",
-                course["course_name"],
-                course["course_code"],
-                course["description"],
-                course["cost"],
-            )
-
-    except ConfigurationException as e:
-        logger.error("Configuration error: %s", e)
-    # pylint: disable=broad-except
-    except Exception as e:
-        logger.error("Application error: %s", e)
-
-
 stackademy_app = Stackademy()
-
-if __name__ == "__main__":
-    main()
