@@ -12,10 +12,10 @@ from app.exceptions import ConfigurationException
 load_dotenv()
 
 # OpenAI API settings
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", None)
-OPENAI_API_MODEL = "gpt-4o-mini"
-OPENAI_API_TEMPERATURE = 0.0
-OPENAI_API_MAX_TOKENS = 4096
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "SET-ME-PLEASE")
+OPENAI_API_MODEL = os.getenv("OPENAI_API_MODEL", "gpt-4o-mini")
+OPENAI_API_TEMPERATURE = float(os.getenv("OPENAI_API_TEMPERATURE", "0.0"))
+OPENAI_API_MAX_TOKENS = int(os.getenv("OPENAI_API_MAX_TOKENS", "4096"))
 
 
 # MySQL database settings

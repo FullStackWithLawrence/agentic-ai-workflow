@@ -19,6 +19,7 @@ from openai.types.chat import (
 )
 
 from app import settings
+from app.const import MISSING
 from app.logging_config import get_logger, setup_logging
 from app.stackademy import stackademy_app
 
@@ -26,15 +27,16 @@ from app.stackademy import stackademy_app
 setup_logging()
 logger = get_logger(__name__)
 
-
-messages: list[
+MessagesType = list[
     Union[
         ChatCompletionSystemMessageParam,
         ChatCompletionUserMessageParam,
         ChatCompletionAssistantMessageParam,
         ChatCompletionToolMessageParam,
     ]
-] = [
+]
+
+messages: MessagesType = [
     ChatCompletionSystemMessageParam(
         role="system",
         content="""You are a helpful assistant for the Stackademy online learning platform.
@@ -68,9 +70,9 @@ def handle_function_call(function_name: str, arguments: dict) -> str:
         return json.dumps(courses, default=str, indent=2)
 
     if function_name == "register_course":
-        course_code = arguments.get("course_code", "MISSING COURSE CODE")
-        email = arguments.get("email", "MISSING EMAIL")
-        full_name = arguments.get("full_name", "MISSING NAME")
+        course_code = arguments.get("course_code", MISSING)
+        email = arguments.get("email", MISSING)
+        full_name = arguments.get("full_name", MISSING)
 
         # Call the actual function
         success = stackademy_app.register_course(course_code=course_code, email=email, full_name=full_name)
@@ -123,7 +125,6 @@ def process_tool_calls(message: ChatCompletionMessage) -> list[str]:
     return functions_called
 
 
-# pylint: disable=too-many-locals
 def completion(prompt: str) -> tuple[ChatCompletion, list[str]]:
     """LLM text completion"""
 

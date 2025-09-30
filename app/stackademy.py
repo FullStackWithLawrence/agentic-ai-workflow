@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 from openai.types.chat import ChatCompletionFunctionToolParam
 from pydantic import BaseModel, Field
 
+from app.const import MISSING
 from app.database import db
 from app.exceptions import ConfigurationException
 from app.logging_config import get_logger, setup_logging
@@ -182,6 +183,13 @@ class Stackademy:
         Returns:
             bool: True if registration is successful, False otherwise
         """
+        if MISSING in (course_code, email, full_name):
+            raise ConfigurationException("Missing required registration parameters.")
+
+        full_name = full_name.title().strip()
+        email = email.lower().strip()
+        course_code = course_code.upper().strip()
+
         logger.info("Registering %s (%s) for course %s...", full_name, email, course_code)
         if not self.verify_course(course_code):
             logger.error("Course code %s does not exist.", course_code)
