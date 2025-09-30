@@ -5,6 +5,12 @@ from typing import Any, Dict, List, Optional
 
 from app.database import db
 from app.exceptions import ConfigurationException
+from app.logging_config import get_logger, setup_logging
+
+
+# Initialize logging
+setup_logging()
+logger = get_logger(__name__)
 
 
 class StackademyApp:
@@ -25,7 +31,7 @@ class StackademyApp:
             return self.db.test_connection()
         # pylint: disable=broad-except
         except Exception as e:
-            print(f"Database connection test failed: {e}")
+            logger.error("Database connection test failed: %s", e)
             return False
 
     def get_courses(self, description: Optional[str] = None, max_cost: Optional[float] = None) -> List[Dict[str, Any]]:
@@ -69,13 +75,28 @@ class StackademyApp:
             query += " WHERE " + " AND ".join(where_conditions)
 
         query += " ORDER BY c.prerequisite_id"
-
+        logger.info("get_courses() executing db query with params: %s", params)
         try:
             return self.db.execute_query(query, tuple(params))
         # pylint: disable=broad-except
         except Exception as e:
-            print(f"Failed to retrieve courses: {e}")
+            logger.error("Failed to retrieve courses: %s", e)
             return []
+
+    def register_course(self, course_code: str, email: str, full_name: str) -> bool:
+        """
+        Register a user for a course.
+
+        Args:
+            course_code (str): The course code to register for
+
+            email (str): The user's email address
+            full_name (str): The user's full name
+        Returns:
+            bool: True if registration is successful, False otherwise
+        """
+        logger.info("Registering %s (%s) for course %s...", full_name, email, course_code)
+        return True
 
 
 def main():
@@ -88,25 +109,29 @@ def main():
         app = StackademyApp()
 
         # Test database connection
-        print("Testing database connection...")
+        logger.info("Testing database connection...")
         if not app.test_database_connection():
-            print("Database connection failed. Please check your configuration.")
+            logger.error("Database connection failed. Please check your configuration.")
             return
-        print("✅ Database connection successful!")
+        logger.info("✅ Database connection successful!")
 
         # Get courses
-        print("\nRetrieving courses...")
+        logger.info("Retrieving courses...")
         courses = app.get_courses(description="python")
         for course in courses:
-            print(
-                f"  - {course['course_name']} ({course['course_code']}) - {course['description']} - ${course['cost']}"
+            logger.info(
+                "  - %s (%s) - %s - $%s",
+                course["course_name"],
+                course["course_code"],
+                course["description"],
+                course["cost"],
             )
 
     except ConfigurationException as e:
-        print(f"Configuration error: {e}")
+        logger.error("Configuration error: %s", e)
     # pylint: disable=broad-except
     except Exception as e:
-        print(f"Application error: {e}")
+        logger.error("Application error: %s", e)
 
 
 stackademy_app = StackademyApp()

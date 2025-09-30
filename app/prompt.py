@@ -5,11 +5,11 @@ Handles function calling and response parsing.
 """
 
 import json
-import random
-from typing import Optional, Union
+from typing import Union
 
 import openai
 from openai.types.chat import (
+    ChatCompletion,
     ChatCompletionAssistantMessageParam,
     ChatCompletionFunctionToolParam,
     ChatCompletionMessage,
@@ -20,7 +20,13 @@ from openai.types.chat import (
 )
 
 from app import settings
+from app.logging_config import get_logger, setup_logging
 from app.stackademy import stackademy_app
+
+
+# Initialize logging
+setup_logging()
+logger = get_logger(__name__)
 
 
 def tool_factory_get_courses() -> ChatCompletionFunctionToolParam:
@@ -50,6 +56,36 @@ def tool_factory_get_courses() -> ChatCompletionFunctionToolParam:
     )
 
 
+def tool_factory_register() -> ChatCompletionFunctionToolParam:
+    """Factory function to create a tool for registering a user"""
+    return ChatCompletionFunctionToolParam(
+        type="function",
+        function={
+            "name": "register_course",
+            "description": "Register a student in a course with the provided details.",
+            "parameters": {
+                "type": "object",
+                "required": ["course_code", "email", "full_name"],
+                "properties": {
+                    "course_code": {
+                        "type": "string",
+                        "description": "The unique code for the course.",
+                    },
+                    "email": {
+                        "type": "string",
+                        "description": "The email address of the new user.",
+                    },
+                    "full_name": {
+                        "type": "string",
+                        "description": "The full name of the new user.",
+                    },
+                },
+                "additionalProperties": False,
+            },
+        },
+    )
+
+
 messages: list[
     Union[
         ChatCompletionSystemMessageParam,
@@ -61,6 +97,7 @@ messages: list[
     ChatCompletionSystemMessageParam(
         role="system",
         content="""You are a helpful assistant for the Stackademy online learning platform.
+            If the user wants no further assistance, respond with "Goodbye!".
             Prioritize use of the functions available to you as needed.
             Do not provide answers that are not based on the functions available to you.
             Your task is to assist users with their queries related to the platform,
@@ -73,9 +110,6 @@ messages: list[
         content="How can I assist you with Stackademy today?",
     ),
 ]
-
-# Define tools separately
-tools = [tool_factory_get_courses()]
 
 
 def handle_function_call(function_name: str, arguments: dict) -> str:
@@ -91,11 +125,67 @@ def handle_function_call(function_name: str, arguments: dict) -> str:
         # Return as JSON string
         return json.dumps(courses, default=str, indent=2)
 
+    if function_name == "register_course":
+        course_code = arguments.get("course_code", "MISSING COURSE CODE")
+        email = arguments.get("email", "MISSING EMAIL")
+        full_name = arguments.get("full_name", "MISSING NAME")
+
+        # Call the actual function
+        success = stackademy_app.register_course(course_code=course_code, email=email, full_name=full_name)
+
+        # Return result as JSON string
+        return json.dumps({"success": success})
+
     return json.dumps({"error": f"Unknown function: {function_name}"})
 
 
+def process_tool_calls(message: ChatCompletionMessage) -> list[str]:
+    """Process tool calls in the messages list."""
+    functions_called = []
+    if not isinstance(message, ChatCompletionMessage) or not message.tool_calls:
+        return functions_called
+    for tool_call in message.tool_calls:
+
+        # For function calls, access via type checking
+        if tool_call.type == "function":
+            function_name = tool_call.function.name
+            function_args = json.loads(tool_call.function.arguments)
+            functions_called.append(function_name)
+            tool_calls_param = [
+                ChatCompletionMessageFunctionToolCallParam(
+                    id=tool_call.id,
+                    type="function",
+                    function={
+                        "name": function_name,
+                        "arguments": tool_call.function.arguments,  # Keep as string, don't parse
+                    },
+                )
+            ]
+            assistant_content = message.content if message.content else "Accessing tool..."
+            messages.append(
+                ChatCompletionAssistantMessageParam(
+                    role="assistant", content=assistant_content, tool_calls=tool_calls_param
+                )
+            )
+            logger.info("Function call detected: %s with args %s", function_name, function_args)
+
+            # Execute the function
+            function_result = handle_function_call(function_name, function_args)
+
+            # Add the function result to the conversation
+            tool_message = ChatCompletionToolMessageParam(
+                role="tool", content=function_result, tool_call_id=tool_call.id
+            )
+            messages.append(tool_message)
+
+        logger.debug(
+            "Updated messages: %s", [msg.model_dump() if not isinstance(msg, dict) else msg for msg in messages]
+        )
+    return functions_called
+
+
 # pylint: disable=too-many-locals
-def completion(prompt: str):
+def completion(prompt: str) -> tuple[ChatCompletion, list[str]]:
     """LLM text completion"""
 
     # Set the OpenAI API key
@@ -108,6 +198,7 @@ def completion(prompt: str):
     temperature = settings.OPENAI_API_TEMPERATURE
     max_tokens = settings.OPENAI_API_MAX_TOKENS
     messages.append(ChatCompletionUserMessageParam(role="user", content=prompt))
+    functions_called = []
 
     # Call the OpenAI API
     # -------------------------------------------------------------------------
@@ -115,71 +206,28 @@ def completion(prompt: str):
         model=model,
         messages=messages,
         tool_choice={"type": "function", "function": {"name": "get_courses"}},
-        tools=tools,
+        tools=[tool_factory_get_courses()],
         temperature=temperature,
         max_tokens=max_tokens,
     )
-    print(response.model_dump())
+    logger.debug("Initial response: %s", response.model_dump())
 
     # Check if the model wants to call a function
     # -------------------------------------------------------------------------
     message = response.choices[0].message
 
-    if message.tool_calls:
-
-        # Process each tool call
-        for tool_call in message.tool_calls:
-
-            # For function calls, access via type checking
-            if tool_call.type == "function":
-                function_name = tool_call.function.name
-                function_args = json.loads(tool_call.function.arguments)
-                tool_calls_param = [
-                    ChatCompletionMessageFunctionToolCallParam(
-                        id=tool_call.id,
-                        type="function",
-                        function={
-                            "name": function_name,
-                            "arguments": tool_call.function.arguments,  # Keep as string, don't parse
-                        },
-                    )
-                ]
-                assistant_content = message.content if message.content else "Accessing tool..."
-                messages.append(
-                    ChatCompletionAssistantMessageParam(
-                        role="assistant", content=assistant_content, tool_calls=tool_calls_param
-                    )
-                )
-                print(f"Function call detected: {function_name} with args {function_args}")
-
-                # Execute the function
-                function_result = handle_function_call(function_name, function_args)
-
-                # Add the function result to the conversation
-                tool_message = ChatCompletionToolMessageParam(
-                    role="tool", content=function_result, tool_call_id=tool_call.id
-                )
-                messages.append(tool_message)
-
-            print(f"Updated messages: {[msg.model_dump() if not isinstance(msg, dict) else msg for msg in messages]}")
+    while message.tool_calls:
+        functions_called = process_tool_calls(message)
 
         # Make another API call to get the final response
-        final_response = openai.chat.completions.create(
+        response = openai.chat.completions.create(
             model=model,
             messages=messages,
-            tools=tools,
+            tools=[tool_factory_get_courses(), tool_factory_register()],
             temperature=temperature,
             max_tokens=max_tokens,
         )
+        message = response.choices[0].message
+        logger.debug("Updated response: %s", response.model_dump())
 
-        final_message = final_response.choices[0].message
-        retval = final_message.content
-        print(final_response.model_dump())
-    else:
-        # No function call, just return the content
-        retval = message.content
-
-    # Print the response
-    # -------------------------------------------------------------------------
-    print(retval)
-    return retval
+    return response, functions_called

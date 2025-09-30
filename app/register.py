@@ -3,7 +3,13 @@
 User registration and management for Stackademy.
 """
 
+from .logging_config import get_logger, setup_logging
 from .prompt import completion
+
+
+# Initialize logging
+setup_logging()
+logger = get_logger(__name__)
 
 
 def main():
@@ -11,8 +17,19 @@ def main():
     print("Stackademy User Registration Demo")
     print("=" * 50)
 
-    user_prompt = input("Enter your question: ")
-    completion(prompt=user_prompt)
+    user_prompt = input("Welcome to Stackademy! How can I assist you today? ")
+
+    response, functions_called = completion(prompt=user_prompt)
+    while response.choices[0].message.content != "Goodbye!":
+        message = response.choices[0].message
+        logger.info("ChatGPT: %s", message.content)
+
+        if "get_courses" in functions_called:
+            user_prompt = input("Would you like to register for a course? ")
+        elif "register_course" in functions_called:
+            user_prompt = input("Can I help you with anything else? ")
+
+        response, functions_called = completion(prompt=user_prompt)
 
 
 if __name__ == "__main__":
