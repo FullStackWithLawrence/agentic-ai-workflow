@@ -3,8 +3,11 @@
 
 from typing import Any, Dict, List, Optional
 
+from openai.types.chat import ChatCompletionFunctionToolParam
+
 from app.database import db
 from app.exceptions import ConfigurationException
+from app.function_schemas import GetCoursesParams, RegisterCourseParams
 from app.logging_config import get_logger, setup_logging
 
 
@@ -19,6 +22,28 @@ class StackademyApp:
     def __init__(self):
         """Initialize the Stackademy application."""
         self.db = db
+
+    def tool_factory_get_courses(self) -> ChatCompletionFunctionToolParam:
+        """LLM Factory function to create a tool for getting courses"""
+        return ChatCompletionFunctionToolParam(
+            type="function",
+            function={
+                "name": "get_courses",
+                "description": "returns up to 10 rows of course detail data, filtered by the maximum cost a student is willing to pay for a course and the area of specialization.",
+                "parameters": GetCoursesParams.model_json_schema(),
+            },
+        )
+
+    def tool_factory_register(self) -> ChatCompletionFunctionToolParam:
+        """LLMFactory function to create a tool for registering a user"""
+        return ChatCompletionFunctionToolParam(
+            type="function",
+            function={
+                "name": "register_course",
+                "description": "Register a student in a course with the provided details.",
+                "parameters": RegisterCourseParams.model_json_schema(),
+            },
+        )
 
     def test_database_connection(self) -> bool:
         """

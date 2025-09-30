@@ -22,12 +22,22 @@ def main():
     response, functions_called = completion(prompt=user_prompt)
     while response.choices[0].message.content != "Goodbye!":
         message = response.choices[0].message
-        logger.info("ChatGPT: %s", message.content)
+        response_message = message.content or ""
+        logger.info("ChatGPT: %s", response_message.strip())
+
+        # Check if there's a follow-up question in the response
+        if "QUESTION:" in response_message:
+            question_line = [
+                line.strip() for line in response_message.split("\n") if line.strip().startswith("QUESTION:")
+            ][0]
+            followup_question = question_line.replace("QUESTION:", "").strip() + " "
+        else:
+            followup_question = None
 
         if "get_courses" in functions_called:
-            user_prompt = input("Would you like to register for a course? ")
+            user_prompt = input(followup_question or "Would you like to register for a course? ")
         elif "register_course" in functions_called:
-            user_prompt = input("Can I help you with anything else? ")
+            user_prompt = input(followup_question or "Can I help you with anything else? ")
 
         response, functions_called = completion(prompt=user_prompt)
 

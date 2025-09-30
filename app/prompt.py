@@ -29,63 +29,6 @@ setup_logging()
 logger = get_logger(__name__)
 
 
-def tool_factory_get_courses() -> ChatCompletionFunctionToolParam:
-    """Factory function to create a tool for getting courses"""
-    return ChatCompletionFunctionToolParam(
-        type="function",
-        function={
-            "name": "get_courses",
-            "description": "returns up to 10 rows of course detail data, filtered by the maximum cost a student is willing to pay for a course and the area of specialization.\n",
-            "parameters": {
-                "type": "object",
-                "required": [],
-                "properties": {
-                    "max_cost": {
-                        "type": "number",
-                        "description": "the maximum cost that a student is willing to pay for a course.",
-                    },
-                    "description": {
-                        "enum": ["AI", "mobile", "web", "database", "network", "neural networks"],
-                        "type": "string",
-                        "description": "areas of specialization for courses in the catalogue.",
-                    },
-                },
-                "additionalProperties": False,
-            },
-        },
-    )
-
-
-def tool_factory_register() -> ChatCompletionFunctionToolParam:
-    """Factory function to create a tool for registering a user"""
-    return ChatCompletionFunctionToolParam(
-        type="function",
-        function={
-            "name": "register_course",
-            "description": "Register a student in a course with the provided details.",
-            "parameters": {
-                "type": "object",
-                "required": ["course_code", "email", "full_name"],
-                "properties": {
-                    "course_code": {
-                        "type": "string",
-                        "description": "The unique code for the course.",
-                    },
-                    "email": {
-                        "type": "string",
-                        "description": "The email address of the new user.",
-                    },
-                    "full_name": {
-                        "type": "string",
-                        "description": "The full name of the new user.",
-                    },
-                },
-                "additionalProperties": False,
-            },
-        },
-    )
-
-
 messages: list[
     Union[
         ChatCompletionSystemMessageParam,
@@ -103,6 +46,7 @@ messages: list[
             Your task is to assist users with their queries related to the platform,
             including course information, enrollment procedures, and general support.
             You should respond in a concise and clear manner, providing accurate information based on the user's request.
+            If you ask a follow up question, then place it at the bottom of the response and precede it with "QUESTION:".
             """,
     ),
     ChatCompletionAssistantMessageParam(
@@ -206,7 +150,7 @@ def completion(prompt: str) -> tuple[ChatCompletion, list[str]]:
         model=model,
         messages=messages,
         tool_choice={"type": "function", "function": {"name": "get_courses"}},
-        tools=[tool_factory_get_courses()],
+        tools=[stackademy_app.tool_factory_get_courses()],
         temperature=temperature,
         max_tokens=max_tokens,
     )
@@ -223,7 +167,7 @@ def completion(prompt: str) -> tuple[ChatCompletion, list[str]]:
         response = openai.chat.completions.create(
             model=model,
             messages=messages,
-            tools=[tool_factory_get_courses(), tool_factory_register()],
+            tools=[stackademy_app.tool_factory_get_courses(), stackademy_app.tool_factory_register()],
             temperature=temperature,
             max_tokens=max_tokens,
         )

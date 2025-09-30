@@ -8,4 +8,5 @@
 
 python-dotenv==1.1.1
 openai==2.0.0
+pydantic==2.10.0
 PyMySQL==1.1.1
