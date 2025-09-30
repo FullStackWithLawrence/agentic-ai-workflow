@@ -11,7 +11,8 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![hack.d Lawrence McDaniel](https://img.shields.io/badge/hack.d-Lawrence%20McDaniel-orange.svg)](https://lawrencemcdaniel.com)
 
-A Python "Hello World" application that demonstrates the OpenAI API and usage of Docker Compose to containerize your project. This is a command line utility that returns the value "Hello World" in the written language of your choice.
+A Python command-line application that demonstrates how to use OpenAI Api function calling to drive an automated agentic workflow. Also demonstrates how
+to use Docker Compose to containerize your project.
 
 Python code is [located here](./app/)
 

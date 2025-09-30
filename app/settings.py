@@ -15,33 +15,16 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", None)
 OPENAI_API_MODEL = "gpt-4o-mini"
 OPENAI_API_TEMPERATURE = 0.0
-OPENAI_API_MAX_TOKENS = 64
+OPENAI_API_MAX_TOKENS = 4096
 
 
-# application settings
-LANGUAGES = [
-    "English",
-    "Spanish",
-    "Italian",
-    "French",
-    "Gereman",
-    "Polish",
-    "Hebrew",
-    "Chinese",
-    "Mandarin",
-    "Japanese",
-    "Hindi",
-    "Russian",
-    "Portuguese",
-    "Bengali",
-    "Urdu",
-    "Indonesian",
-    "Nigerian Pidgin",
-    "Marathi",
-    "Telugu",
-    "Turkish",
-    "Tamil",
-]
+# MySQL database settings
+MYSQL_HOST = os.getenv("MYSQL_HOST", "localhost")
+MYSQL_PORT = int(os.getenv("MYSQL_PORT", "3306"))
+MYSQL_USER = os.getenv("MYSQL_USER", "root")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "")
+MYSQL_DATABASE = os.getenv("MYSQL_DATABASE", "stackademy")
+MYSQL_CHARSET = os.getenv("MYSQL_CHARSET", "utf8mb4")
 
 # application configuration validations
 if OPENAI_API_KEY in (None, "SET-ME-PLEASE"):
