@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 import pymysql
 
 from app.exceptions import ConfigurationException
+from app.logging_config import get_logger, setup_logging
 from app.settings import (
     MYSQL_CHARSET,
     MYSQL_DATABASE,
@@ -15,6 +16,10 @@ from app.settings import (
     MYSQL_PORT,
     MYSQL_USER,
 )
+
+
+setup_logging()
+logger = get_logger(__name__)
 
 
 class DatabaseConnection:
@@ -46,6 +51,7 @@ class DatabaseConnection:
         Raises:
             pymysql.Error: If connection fails
         """
+        logger.debug("Connecting to MySQL database at %s:%s", self.host, self.port)
         try:
             connection = pymysql.connect(
                 host=self.host,
@@ -99,6 +105,7 @@ class DatabaseConnection:
         Returns:
             List[Dict[str, Any]]: Query results as list of dictionaries
         """
+        logger.debug("Executing query: %s with params: %s", query, params)
         with self.get_cursor() as cursor:
             cursor.execute(query, params or ())
             return cursor.fetchall()
@@ -114,6 +121,7 @@ class DatabaseConnection:
         Returns:
             int: Number of affected rows
         """
+        logger.debug("Executing update: %s with params: %s", query, params)
         with self.get_cursor() as cursor:
             cursor.execute(query, params or ())
             return cursor.rowcount
@@ -131,7 +139,7 @@ class DatabaseConnection:
                 return True
         # pylint: disable=broad-except
         except Exception as e:
-            print(f"Database connection test failed: {e}")
+            logger.error("Database connection test failed: %s", e)
             return False
 
 

@@ -9,15 +9,14 @@ import sys
 import unittest
 from pathlib import Path
 
+from app.agent import main  # noqa: E402
+
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 PROJECT_ROOT = str(Path(HERE).parent.parent)
 PYTHON_ROOT = str(Path(PROJECT_ROOT).parent)
 if PYTHON_ROOT not in sys.path:
     sys.path.append(PYTHON_ROOT)  # noqa: E402
-
-
-from app.register import register  # noqa: E402
 
 
 class TestApplication(unittest.TestCase):
@@ -28,6 +27,6 @@ class TestApplication(unittest.TestCase):
 
         # pylint: disable=broad-exception-caught
         try:
-            register()
+            main()
         except Exception as e:
-            self.fail(f"register raised an exception: {e}")
+            self.fail(f"main raised an exception: {e}")

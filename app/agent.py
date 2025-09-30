@@ -7,7 +7,6 @@ from .logging_config import get_logger, setup_logging
 from .prompt import completion
 
 
-# Initialize logging
 setup_logging()
 logger = get_logger(__name__)
 

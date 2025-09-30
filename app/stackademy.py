@@ -12,6 +12,10 @@ from app.exceptions import ConfigurationException
 from app.logging_config import get_logger, setup_logging
 
 
+setup_logging()
+logger = get_logger(__name__)
+
+
 class StackademySpecializationArea(str, Enum):
     """Available specialization areas for courses."""
 
@@ -40,11 +44,6 @@ class StackademyRegisterCourseParams(BaseModel):
     course_code: str = Field(description="The unique code for the course.")
     email: str = Field(description="The email address of the new user.")
     full_name: str = Field(description="The full name of the new user.")
-
-
-# Initialize logging
-setup_logging()
-logger = get_logger(__name__)
 
 
 class Stackademy:
@@ -173,6 +172,11 @@ class Stackademy:
         if not self.verify_course(course_code):
             logger.error("Course code %s does not exist.", course_code)
             return False
+
+        # Print success message in bold bright green
+        success_message = f"Successfully registered {full_name} ({email}) for course {course_code}."
+        print(f"\033[1;92m{success_message}\033[0m")
+        logger.info(success_message)
         return True
 
 

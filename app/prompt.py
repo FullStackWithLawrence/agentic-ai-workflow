@@ -23,7 +23,6 @@ from app.logging_config import get_logger, setup_logging
 from app.stackademy import stackademy_app
 
 
-# Initialize logging
 setup_logging()
 logger = get_logger(__name__)
 

@@ -18,4 +18,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 
 # Run the application when the container launches
-CMD ["python", "app/register.py"]
+CMD ["python", "app/agent.py"]

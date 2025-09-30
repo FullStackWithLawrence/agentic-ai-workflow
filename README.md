@@ -34,7 +34,7 @@ make init    # create a virtual environment
 
 ```console
 source activate
-python -m app.register
+python -m app.agent
 ```
 
 ## OPTIONAL: Docker
