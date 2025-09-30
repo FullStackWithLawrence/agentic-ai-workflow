@@ -1,0 +1,33 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=wrong-import-position
+# pylint: disable=R0801
+"""Test application."""
+
+# python stuff
+import os
+import sys
+import unittest
+from pathlib import Path
+
+
+HERE = os.path.abspath(os.path.dirname(__file__))
+PROJECT_ROOT = str(Path(HERE).parent.parent)
+PYTHON_ROOT = str(Path(PROJECT_ROOT).parent)
+if PYTHON_ROOT not in sys.path:
+    sys.path.append(PYTHON_ROOT)  # noqa: E402
+
+
+from app.register import register  # noqa: E402
+
+
+class TestApplication(unittest.TestCase):
+    """Test application."""
+
+    def test_application_does_not_crash(self):
+        """Test that the application returns a value."""
+
+        # pylint: disable=broad-exception-caught
+        try:
+            register()
+        except Exception as e:
+            self.fail(f"register raised an exception: {e}")
