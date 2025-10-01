@@ -21,7 +21,7 @@ from openai.types.chat import (
 from app import settings
 from app.const import MISSING, ToolChoice
 from app.logging_config import get_logger, setup_logging
-from app.settings import ASSISTANT_NAME, TOOL_CHOICE
+from app.settings import LLM_ASSISTANT_NAME, LLM_TOOL_CHOICE
 from app.stackademy import stackademy_app
 from app.utils import dump_json_colored
 
@@ -50,12 +50,12 @@ messages: MessagesType = [
             You should respond in a concise and clear manner, providing accurate information based on the user's request.
             If you ask a follow up question, then place it at the bottom of the response and precede it with "QUESTION:".
             """,
-        name=ASSISTANT_NAME,
+        name=LLM_ASSISTANT_NAME,
     ),
     ChatCompletionAssistantMessageParam(
         role="assistant",
         content="How can I assist you with Stackademy today?",
-        name=ASSISTANT_NAME,
+        name=LLM_ASSISTANT_NAME,
     ),
 ]
 
@@ -111,7 +111,7 @@ def process_tool_calls(message: ChatCompletionMessage) -> list[str]:
             assistant_content = message.content if message.content else "Accessing tool..."
             messages.append(
                 ChatCompletionAssistantMessageParam(
-                    role="assistant", content=assistant_content, tool_calls=tool_calls_param, name=ASSISTANT_NAME
+                    role="assistant", content=assistant_content, tool_calls=tool_calls_param, name=LLM_ASSISTANT_NAME
                 )
             )
             logger.info("Function call detected: %s with args %s", function_name, function_args)
@@ -183,7 +183,7 @@ def completion(prompt: str) -> tuple[Optional[ChatCompletion], list[str]]:
 
     response = handle_completion(
         # tool_choice={"type": "function", "function": {"name": "get_courses"}},
-        tool_choice=TOOL_CHOICE,
+        tool_choice=LLM_TOOL_CHOICE,
         tools=[stackademy_app.tool_factory_get_courses()],
     )
     logger.debug("Initial response: %s", dump_json_colored(response.model_dump(), "green"))
