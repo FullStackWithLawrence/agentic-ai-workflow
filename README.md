@@ -18,6 +18,8 @@ A Python command-line application that demonstrates how to use OpenAI Api functi
 
 Python code is [located here](./app/)
 
+![Agentic AI Workflow](https://github.com/FullStackWithLawrence/agentic-ai-workflow/blob/main/doc/img/agentic-workflow.png)
+
 ## Quick Start
 
 1. Setup the application
