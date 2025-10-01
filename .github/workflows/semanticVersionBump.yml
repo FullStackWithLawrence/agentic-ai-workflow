@@ -14,10 +14,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - alpha
-      - beta
-      - next
-      - next-major
+      - main
 
 jobs:
   bump-version-next:
