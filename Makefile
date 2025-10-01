@@ -14,7 +14,7 @@ PIP = $(PYTHON) -m pip
 ifneq ("$(wildcard .env)","")
     include .env
 else
-    $(shell echo -e "OPENAI_API_KEY=SET-ME-PLEASE\nENVIRONMENT=dev\nDOCKERHUB_USERNAME=localhost\nDOCKERHUB_ACCESS_TOKEN=SET-ME-PLEASE\n" >> .env)
+    $(shell cp .env-example .env)
 endif
 
 .PHONY: analyze pre-commit init lint clean test build release
