@@ -1,3 +1,10 @@
+## [0.1.2](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.1...v0.1.2) (2025-10-01)
+
+
+### Bug Fixes
+
+* add real sql server values ([76a79d7](https://github.com/FullStackWithLawrence/agentic-ai-workflow/commit/76a79d75f6f9bb47bfb3a3d6abf555bdd3ddf2a2))
+
 ## [0.1.1](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.0...v0.1.1) (2025-10-01)
 
 
