@@ -11,6 +11,7 @@ from app.const import MISSING
 from app.database import db
 from app.exceptions import ConfigurationException
 from app.logging_config import get_logger, setup_logging
+from app.utils import color_text
 
 
 setup_logging()
@@ -144,7 +145,8 @@ class Stackademy:
 
         try:
             retval = self.db.execute_query(query, tuple(params))
-            logger.info("get_courses() retrieved %d rows from %s", len(retval), self.db.connection_string)
+            msg = f"get_courses() retrieved {len(retval)} rows from {self.db.connection_string}"
+            logger.info(color_text(msg, "green"))
             return retval
         # pylint: disable=broad-except
         except Exception as e:
