@@ -19,6 +19,34 @@ inputs:
     description: "The OpenAI API key"
     required: true
     type: string
+  mysql-host:
+    description: "MySQL database host"
+    required: false
+    type: string
+    default: "localhost"
+  mysql-port:
+    description: "MySQL database port"
+    required: false
+    type: string
+    default: "3306"
+  mysql-user:
+    description: "MySQL database user"
+    required: false
+    type: string
+    default: "test_user"
+  mysql-password:
+    description: "MySQL database password"
+    required: true
+    type: string
+  mysql-database:
+    description: "MySQL database name"
+    required: true
+    type: string
+  mysql-charset:
+    description: "MySQL database charset"
+    required: false
+    type: string
+    default: "utf8mb4"
 
 runs:
   using: "composite"
@@ -71,10 +99,22 @@ runs:
         touch ./.env
         echo "OPENAI_API_ORGANIZATION=${{ env.OPENAI_API_ORGANIZATION }}" >> ./.env
         echo "OPENAI_API_KEY=${{ env.OPENAI_API_KEY }}" >> ./.env
+        echo "MYSQL_HOST=${{ env.MYSQL_HOST }}" >> ./.env
+        echo "MYSQL_PORT=${{ env.MYSQL_PORT }}" >> ./.env
+        echo "MYSQL_USER=${{ env.MYSQL_USER }}" >> ./.env
+        echo "MYSQL_PASSWORD=${{ env.MYSQL_PASSWORD }}" >> ./.env
+        echo "MYSQL_DATABASE=${{ env.MYSQL_DATABASE }}" >> ./.env
+        echo "MYSQL_CHARSET=${{ env.MYSQL_CHARSET }}" >> ./.env
         echo "DEBUG_MODE=False" >> ./.env
       env:
         OPENAI_API_ORGANIZATION: ${{ inputs.openai-api-organization }}
         OPENAI_API_KEY: ${{ inputs.openai-api-key }}
+        MYSQL_HOST: ${{ inputs.mysql-host }}
+        MYSQL_PORT: ${{ inputs.mysql-port }}
+        MYSQL_USER: ${{ inputs.mysql-user }}
+        MYSQL_PASSWORD: ${{ inputs.mysql-password }}
+        MYSQL_DATABASE: ${{ inputs.mysql-database }}
+        MYSQL_CHARSET: ${{ inputs.mysql-charset }}
 
     - name: Run Python unit tests
       shell: bash
