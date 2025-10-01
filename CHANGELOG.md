@@ -1,3 +1,12 @@
+## [0.1.1](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.0...v0.1.1) (2025-10-01)
+
+
+### Bug Fixes
+
+* add @semantic-release/exec ([0d45b68](https://github.com/FullStackWithLawrence/agentic-ai-workflow/commit/0d45b686959a9166bf30aa6d3a556d05b4f320b4))
+* setup ci-cd ([b264438](https://github.com/FullStackWithLawrence/agentic-ai-workflow/commit/b2644385a1645c9cfb0891b09b6d5b573d162466))
+* style console output, and test ci-cd ([d37802e](https://github.com/FullStackWithLawrence/agentic-ai-workflow/commit/d37802eb6842cea544a341251995270e3fb49bd7))
+
 # Change Log
 
 All notable changes to this project will be documented in this file.
