@@ -6,6 +6,35 @@ Utility functions for Stackademy.
 import json
 
 
+# ANSI color codes
+colors = {
+    "blue": "\033[94m",  # Bright blue
+    "green": "\033[92m",  # Bright green
+    "reset": "\033[0m",  # Reset to default color
+}
+
+
+def color_text(text, color="blue"):
+    """
+    Colors a string as blue or green.
+
+    Args:
+        text (str): The string to color
+        color (str): Color to apply - either "blue" or "green" (default: "blue")
+
+    Returns:
+        str: The colored string with ANSI escape codes
+
+    Raises:
+        ValueError: If color is not "blue" or "green"
+    """
+
+    if color not in ["blue", "green"]:
+        raise ValueError("Color must be either 'blue' or 'green'")
+
+    return f"{colors[color]}{text}{colors['reset']}"
+
+
 def dump_json_colored(data, color="reset", indent=2, sort_keys=False):
     """
     Dumps a JSON dictionary with colored text output.
@@ -23,12 +52,6 @@ def dump_json_colored(data, color="reset", indent=2, sort_keys=False):
         ValueError: If color is not "blue" or "green"
         TypeError: If data is not JSON serializable
     """
-    # ANSI color codes
-    colors = {
-        "blue": "\033[94m",  # Bright blue
-        "green": "\033[92m",  # Bright green
-        "reset": "\033[0m",  # Reset to default color
-    }
 
     if color not in ["blue", "green"]:
         raise ValueError("Color must be either 'blue' or 'green'")

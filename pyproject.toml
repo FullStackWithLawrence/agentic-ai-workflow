@@ -1,3 +1,27 @@
+[project]
+name = "StackademyAI"
+version = "0.1.0"
+requires-python = ">=3.13"
+description = "StackademyAI: an AI-powered marketing agent"
+authors = [{ name = "Lawrence McDaniel", email = "lpm0073@gmail.com" }]
+license = { file = "LICENSE" }
+keywords = ["AI", "API", "Python"]
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: GNU AGPL v3 or later (AGPLv3+)",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Operating System :: POSIX :: Linux",
+    "Intended Audience :: Developers",
+    "Framework :: Django",
+    "Framework :: Django REST framework",
+    "Topic :: Software Development :: Libraries :: Application Interfaces",
+    "Topic :: Software Development :: Libraries :: API",
+    "Natural Language :: English",
+    "Development Status :: 4 - Beta"
+]
+
 [tool.isort]
 profile = "black"
 lines_after_imports = 2

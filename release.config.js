@@ -11,13 +11,22 @@ module.exports = {
     ],
     "@semantic-release/github",
     [
+      "@semantic-release/exec",
+      {
+        prepareCmd: "python scripts/bump_version.py ${nextRelease.version}",
+      },
+    ],
+    [
       "@semantic-release/git",
       {
         assets: [
           "CHANGELOG.md",
-          "client/package.json",
-          "client/package-lock.json",
           "requirements/prod.txt",
+          "app/__version__.py",
+          "pyproject.toml",
+          "Dockerfile",
+          "package.json",
+          "package-lock.json",
         ],
         message:
           "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",

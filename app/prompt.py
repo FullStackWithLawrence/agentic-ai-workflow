@@ -23,7 +23,7 @@ from app.const import MISSING, ToolChoice
 from app.logging_config import get_logger, setup_logging
 from app.settings import LLM_ASSISTANT_NAME, LLM_TOOL_CHOICE
 from app.stackademy import stackademy_app
-from app.utils import dump_json_colored
+from app.utils import color_text, dump_json_colored
 
 
 setup_logging()
@@ -114,7 +114,8 @@ def process_tool_calls(message: ChatCompletionMessage) -> list[str]:
                     role="assistant", content=assistant_content, tool_calls=tool_calls_param, name=LLM_ASSISTANT_NAME
                 )
             )
-            logger.info("Function call detected: %s with args %s", function_name, function_args)
+            msg = f"Calling function: {function_name} with args {json.dumps(function_args)}"
+            logger.info(color_text(msg, "green"))
 
             function_result = handle_function_call(function_name, function_args)
 
