@@ -27,6 +27,8 @@ def setup_logging(level: int = LOGGING_LEVEL) -> logging.Logger:
             handlers=[logging.StreamHandler(sys.stdout)],  # This logs to console
         )
 
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+
     return logging.getLogger(__name__)
 
 

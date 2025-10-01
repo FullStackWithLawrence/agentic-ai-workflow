@@ -2,6 +2,17 @@
 # This runs on Debian Linux.
 FROM python:3.13-slim-trixie AS base
 
+LABEL maintainer="Lawrence McDaniel <lpm0073@gmail.com>" \
+  description="Docker image for the StackademyAssistent" \
+  license="GNU AGPL v3" \
+  vcs-url="https://github.com/FullStackWithLawrence/agentic-ai-workflow" \
+  org.opencontainers.image.title="StackademyAssistent" \
+  org.opencontainers.image.version="0.1.1" \
+  org.opencontainers.image.authors="Lawrence McDaniel <lpm0073@gmail.com>" \
+  org.opencontainers.image.url="https://FullStackWithLawrence.github.io/agentic-ai-workflow/" \
+  org.opencontainers.image.source="https://github.com/FullStackWithLawrence/agentic-ai-workflow" \
+  org.opencontainers.image.documentation="https://FullStackWithLawrence.github.io/agentic-ai-workflow/"
+
 
 FROM base AS requirements
 

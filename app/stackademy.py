@@ -11,6 +11,7 @@ from app.const import MISSING
 from app.database import db
 from app.exceptions import ConfigurationException
 from app.logging_config import get_logger, setup_logging
+from app.utils import color_text
 
 
 setup_logging()
@@ -67,7 +68,6 @@ class Stackademy:
     def tool_factory_get_courses(self) -> ChatCompletionFunctionToolParam:
         """LLM Factory function to create a tool for getting courses"""
         schema = StackademyGetCoursesParams.model_json_schema()
-        schema["required"] = []  # Both parameters are optional
         return ChatCompletionFunctionToolParam(
             type="function",
             function={
@@ -80,7 +80,6 @@ class Stackademy:
     def tool_factory_register(self) -> ChatCompletionFunctionToolParam:
         """LLMFactory function to create a tool for registering a user"""
         schema = StackademyRegisterCourseParams.model_json_schema()
-        schema["required"] = ["course_code", "email", "full_name"]  # All parameters are required
         return ChatCompletionFunctionToolParam(
             type="function",
             function={
@@ -115,7 +114,7 @@ class Stackademy:
         Returns:
             List[Dict[str, Any]]: List of courses matching the criteria
         """
-        # Base query
+
         query = """
         SELECT
             c.course_code,
@@ -128,7 +127,6 @@ class Stackademy:
         LEFT JOIN courses prerequisite ON c.prerequisite_id = prerequisite.course_id
         """
 
-        # Build WHERE clause dynamically
         where_conditions = []
         params = []
 
@@ -140,14 +138,16 @@ class Stackademy:
             where_conditions.append("c.cost <= %s")
             params.append(max_cost)
 
-        # Add WHERE clause if we have conditions
         if where_conditions:
             query += " WHERE " + " AND ".join(where_conditions)
 
         query += " ORDER BY c.prerequisite_id"
-        logger.info("get_courses() executing db query with params: %s", params)
+
         try:
-            return self.db.execute_query(query, tuple(params))
+            retval = self.db.execute_query(query, tuple(params))
+            msg = f"get_courses() retrieved {len(retval)} rows from {self.db.connection_string}"
+            logger.info(color_text(msg, "green"))
+            return retval
         # pylint: disable=broad-except
         except Exception as e:
             logger.error("Failed to retrieve courses: %s", e)
@@ -190,9 +190,9 @@ class Stackademy:
         if MISSING in (course_code, email, full_name):
             raise ConfigurationException("Missing required registration parameters.")
 
-        full_name = full_name.title().strip()
-        email = email.lower().strip()
-        course_code = course_code.upper().strip()
+        full_name = full_name.title().strip() if isinstance(full_name, str) else full_name
+        email = email.lower().strip() if isinstance(email, str) else email
+        course_code = course_code.upper().strip() if isinstance(course_code, str) else course_code
 
         logger.info("Registering %s (%s) for course %s...", full_name, email, course_code)
         if not self.verify_course(course_code):

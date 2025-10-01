@@ -85,6 +85,7 @@ jobs:
           extra_plugins: |
             @semantic-release/git
             @semantic-release/changelog
+            @semantic-release/exec
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
 

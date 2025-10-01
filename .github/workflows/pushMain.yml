@@ -83,6 +83,7 @@ jobs:
           extra_plugins: |
             @semantic-release/git
             @semantic-release/changelog
+            @semantic-release/exec
         env:
           GIT_COMMITTER_NAME: github-actions[bot]
           GIT_COMMITTER_EMAIL: github-actions[bot]@users.noreply.github.com
