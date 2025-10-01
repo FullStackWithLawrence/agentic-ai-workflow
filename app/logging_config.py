@@ -6,8 +6,10 @@ Centralized logging configuration for the Stackademy application.
 import logging
 import sys
 
+from app.settings import LOGGING_LEVEL
 
-def setup_logging(level: int = logging.INFO) -> logging.Logger:
+
+def setup_logging(level: int = LOGGING_LEVEL) -> logging.Logger:
     """
     Configure logging for the application.
 

@@ -1,15 +1,22 @@
 # -*- coding: utf-8 -*-
 """Settings for the app."""
 
+import logging
 import os
 
 from dotenv import load_dotenv
 
+from app.const import ToolChoice
 from app.exceptions import ConfigurationException
 
 
 # Load environment variables from .env file if available
 load_dotenv()
+
+# General settings
+LOGGING_LEVEL = int(os.getenv("LOGGING_LEVEL", str(logging.INFO)))
+TOOL_CHOICE = os.getenv("TOOL_CHOICE", ToolChoice.REQUIRED)
+
 
 # OpenAI API settings
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "SET-ME-PLEASE")

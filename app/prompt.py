@@ -5,7 +5,7 @@ Handles function calling and response parsing.
 """
 
 import json
-from typing import Union
+from typing import Optional, Union
 
 import openai
 from openai.types.chat import (
@@ -19,9 +19,11 @@ from openai.types.chat import (
 )
 
 from app import settings
-from app.const import MISSING
+from app.const import MISSING, ToolChoice
 from app.logging_config import get_logger, setup_logging
+from app.settings import TOOL_CHOICE
 from app.stackademy import stackademy_app
+from app.utils import dump_json_colored
 
 
 setup_logging()
@@ -120,12 +122,13 @@ def process_tool_calls(message: ChatCompletionMessage) -> list[str]:
             messages.append(tool_message)
 
         logger.debug(
-            "Updated messages: %s", [msg.model_dump() if not isinstance(msg, dict) else msg for msg in messages]
+            "Updated messages: %s",
+            [dump_json_colored(msg.model_dump(), "blue") if not isinstance(msg, dict) else msg for msg in messages],
         )
     return functions_called
 
 
-def completion(prompt: str) -> tuple[ChatCompletion, list[str]]:
+def completion(prompt: str) -> tuple[Optional[ChatCompletion], list[str]]:
     """LLM text completion"""
 
     def handle_completion(tools, tool_choice) -> ChatCompletion:
@@ -134,6 +137,11 @@ def completion(prompt: str) -> tuple[ChatCompletion, list[str]]:
         model = settings.OPENAI_API_MODEL
 
         try:
+            logger.debug(
+                "Sending messages to OpenAI: %s %s",
+                dump_json_colored(messages, "blue"),
+                dump_json_colored(tools, "blue"),
+            )
             response = openai.chat.completions.create(
                 model=model,
                 messages=messages,
@@ -142,7 +150,7 @@ def completion(prompt: str) -> tuple[ChatCompletion, list[str]]:
                 temperature=settings.OPENAI_API_TEMPERATURE,
                 max_tokens=settings.OPENAI_API_MAX_TOKENS,
             )
-            logger.debug("OpenAI response: %s", response.model_dump())
+            logger.debug("OpenAI response: %s", dump_json_colored(response.model_dump(), "green"))
             return response
         except openai.RateLimitError as e:
             logger.error("OpenAI rate limit exceeded: %s", e)
@@ -164,15 +172,19 @@ def completion(prompt: str) -> tuple[ChatCompletion, list[str]]:
             logger.error("Unexpected error during OpenAI completion: %s", e)
             raise
 
+    if not prompt.strip():
+        logger.warning("Received empty prompt.")
+        return None, []
+
     messages.append(ChatCompletionUserMessageParam(role="user", content=prompt))
     functions_called = []
 
     response = handle_completion(
         # tool_choice={"type": "function", "function": {"name": "get_courses"}},
-        tool_choice="required",
+        tool_choice=TOOL_CHOICE,
         tools=[stackademy_app.tool_factory_get_courses()],
     )
-    logger.debug("Initial response: %s", response.model_dump())
+    logger.debug("Initial response: %s", dump_json_colored(response.model_dump(), "green"))
 
     message = response.choices[0].message
     while message.tool_calls:
@@ -182,9 +194,9 @@ def completion(prompt: str) -> tuple[ChatCompletion, list[str]]:
 
         response = handle_completion(
             tools=[stackademy_app.tool_factory_get_courses(), stackademy_app.tool_factory_register()],
-            tool_choice="auto",
+            tool_choice=ToolChoice.AUTO,
         )
         message = response.choices[0].message
-        logger.debug("Updated response: %s", response.model_dump())
+        logger.debug("Updated response: %s", dump_json_colored(response.model_dump(), "green"))
 
     return response, functions_called

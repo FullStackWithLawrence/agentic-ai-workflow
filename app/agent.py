@@ -23,7 +23,7 @@ def main(prompts: Optional[Tuple[str, ...]] = None) -> None:
     user_prompt = prompts[i] if prompts else input("Welcome to Stackademy! How can I assist you today? ")
 
     response, functions_called = completion(prompt=user_prompt)
-    while response.choices[0].message.content != "Goodbye!":
+    while response and response.choices[0].message.content != "Goodbye!":
         i += 1
         message = response.choices[0].message
         response_message = message.content or ""
