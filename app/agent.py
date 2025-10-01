@@ -39,17 +39,27 @@ def main(prompts: Optional[Tuple[str, ...]] = None) -> None:
             followup_question = None
 
         if "get_courses" in functions_called:
-            user_prompt = (
-                prompts[i]
-                if prompts and len(prompts) >= i
-                else input(followup_question or "Would you like to register for a course? ")
-            )
+            default_prompt = "Would you like to register for a course? "
         elif "register_course" in functions_called:
-            user_prompt = (
-                prompts[i]
-                if prompts and len(prompts) >= i
-                else input(followup_question or "Can I help you with anything else? ")
-            )
+            default_prompt = "Can I help you with anything else? "
+        else:
+            default_prompt = "Please let me know: "
+
+        user_prompt = prompts[i] if prompts and len(prompts) > i else input(followup_question or default_prompt)
+
+        if user_prompt and user_prompt.lower().strip() in [
+            "no",
+            "no thanks",
+            "nothing",
+            "exit",
+            "quit",
+            "bye",
+            "goodbye",
+            "that's all",
+            "nothing else",
+        ]:
+            print("Thank you for using Stackademy! Goodbye!")
+            break
 
         response, functions_called = completion(prompt=user_prompt)
 

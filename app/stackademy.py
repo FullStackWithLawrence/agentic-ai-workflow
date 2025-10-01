@@ -66,23 +66,27 @@ class Stackademy:
 
     def tool_factory_get_courses(self) -> ChatCompletionFunctionToolParam:
         """LLM Factory function to create a tool for getting courses"""
+        schema = StackademyGetCoursesParams.model_json_schema()
+        schema["required"] = []  # Both parameters are optional
         return ChatCompletionFunctionToolParam(
             type="function",
             function={
                 "name": "get_courses",
                 "description": "returns up to 10 rows of course detail data, filtered by the maximum cost a student is willing to pay for a course and the area of specialization.",
-                "parameters": StackademyGetCoursesParams.model_json_schema(),
+                "parameters": schema,
             },
         )
 
     def tool_factory_register(self) -> ChatCompletionFunctionToolParam:
         """LLMFactory function to create a tool for registering a user"""
+        schema = StackademyRegisterCourseParams.model_json_schema()
+        schema["required"] = ["course_code", "email", "full_name"]  # All parameters are required
         return ChatCompletionFunctionToolParam(
             type="function",
             function={
                 "name": "register_course",
                 "description": "Register a student in a course with the provided details.",
-                "parameters": StackademyRegisterCourseParams.model_json_schema(),
+                "parameters": schema,
             },
         )
 

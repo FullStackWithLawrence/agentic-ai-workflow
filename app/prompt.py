@@ -168,13 +168,16 @@ def completion(prompt: str) -> tuple[ChatCompletion, list[str]]:
     functions_called = []
 
     response = handle_completion(
-        tool_choice={"type": "function", "function": {"name": "get_courses"}},
+        # tool_choice={"type": "function", "function": {"name": "get_courses"}},
+        tool_choice="required",
         tools=[stackademy_app.tool_factory_get_courses()],
     )
     logger.debug("Initial response: %s", response.model_dump())
 
     message = response.choices[0].message
     while message.tool_calls:
+        if message.content and "Goodbye!" in message.content:
+            break
         functions_called = process_tool_calls(message)
 
         response = handle_completion(
