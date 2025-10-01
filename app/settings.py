@@ -16,6 +16,7 @@ SET_ME_PLEASE = "SET-ME-PLEASE"
 # General settings
 LOGGING_LEVEL = int(os.getenv("LOGGING_LEVEL", str(logging.INFO)))
 TOOL_CHOICE = os.getenv("TOOL_CHOICE", ToolChoice.REQUIRED)
+ASSISTANT_NAME = "StackademyAssistant"
 
 
 # OpenAI API settings
