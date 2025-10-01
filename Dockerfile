@@ -9,9 +9,9 @@ LABEL maintainer="Lawrence McDaniel <lpm0073@gmail.com>" \
   org.opencontainers.image.title="StackademyAssistent" \
   org.opencontainers.image.version="0.1.0" \
   org.opencontainers.image.authors="Lawrence McDaniel <lpm0073@gmail.com>" \
-  org.opencontainers.image.url="https://FullStackWithLawrence.github.io/smarter/" \
+  org.opencontainers.image.url="https://FullStackWithLawrence.github.io/agentic-ai-workflow/" \
   org.opencontainers.image.source="https://github.com/FullStackWithLawrence/agentic-ai-workflow" \
-  org.opencontainers.image.documentation="https://FullStackWithLawrence.github.io/smarter/"
+  org.opencontainers.image.documentation="https://FullStackWithLawrence.github.io/agentic-ai-workflow/"
 
 
 FROM base AS requirements
