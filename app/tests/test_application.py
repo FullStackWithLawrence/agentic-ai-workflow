@@ -26,7 +26,14 @@ class TestApplication(unittest.TestCase):
         """Test that the application returns a value."""
 
         # pylint: disable=broad-exception-caught
+        prompts = (
+            "Show me a list of available courses.",
+            "I would like to register for the CS107 Algorithms course. My name is John Doe and my email is john.doe@example.com",
+            "Thank you, that's all for now. Goodbye!",
+            "Goodbye!",
+            "Go away!",
+        )
         try:
-            main()
+            main(prompts=prompts)
         except Exception as e:
             self.fail(f"main raised an exception: {e}")

@@ -3,6 +3,8 @@
 User registration and management for Stackademy.
 """
 
+from typing import Optional, Tuple
+
 from .logging_config import get_logger, setup_logging
 from .prompt import completion
 
@@ -11,15 +13,18 @@ setup_logging()
 logger = get_logger(__name__)
 
 
-def main():
+def main(prompts: Optional[Tuple[str, ...]] = None) -> None:
     """Main function to demonstrate user registration."""
+    print("=" * 50)
     print("Stackademy User Registration Demo")
     print("=" * 50)
 
-    user_prompt = input("Welcome to Stackademy! How can I assist you today? ")
+    i = 0
+    user_prompt = prompts[i] if prompts else input("Welcome to Stackademy! How can I assist you today? ")
 
     response, functions_called = completion(prompt=user_prompt)
     while response.choices[0].message.content != "Goodbye!":
+        i += 1
         message = response.choices[0].message
         response_message = message.content or ""
         logger.info("ChatGPT: %s", response_message.strip())
@@ -34,9 +39,17 @@ def main():
             followup_question = None
 
         if "get_courses" in functions_called:
-            user_prompt = input(followup_question or "Would you like to register for a course? ")
+            user_prompt = (
+                prompts[i]
+                if prompts and len(prompts) >= i
+                else input(followup_question or "Would you like to register for a course? ")
+            )
         elif "register_course" in functions_called:
-            user_prompt = input(followup_question or "Can I help you with anything else? ")
+            user_prompt = (
+                prompts[i]
+                if prompts and len(prompts) >= i
+                else input(followup_question or "Can I help you with anything else? ")
+            )
 
         response, functions_called = completion(prompt=user_prompt)
 
