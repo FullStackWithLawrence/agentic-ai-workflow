@@ -2,7 +2,7 @@ apiVersion: smarter.sh/v1
 kind: Chatbot
 metadata:
   description: "A MetaAI Llama LLM workflow unit"
-  name: wfu-1-metaai
+  name: wfu_1_metaai
   version: 0.1.0
 spec:
   apiKey: null
