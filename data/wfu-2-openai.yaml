@@ -1,0 +1,35 @@
+apiVersion: smarter.sh/v1
+kind: Chatbot
+metadata:
+  description: "An OpenAI LLM workflow unit"
+  name: wfu-2-openai
+  version: 0.1.0
+spec:
+  apiKey: null
+  config:
+    appAssistant: William
+    appBackgroundImageUrl: null
+    appExamplePrompts:
+      - receives red, green, or blue
+    appFileAttachment: false
+    appInfoUrl: https://platform.openai.com/
+    appLogoUrl: https://platform.smarter.sh/static/images/logo/smarter-crop.png
+    appName: OpenAI Workflow Unit 2
+    appPlaceholder: workflow unit 2...
+    appWelcomeMessage: Multi-LLM Workflow
+    customDomain: null
+    defaultMaxTokens: 4096
+    defaultModel: gpt-4o-mini
+    defaultSystemRole:
+      You are part of an automated workflow unit. You receive one of three colors in
+      Spanish, input from a previous workflow unit and you must respond with one of three values.
+      Valid input values are ROJO, AZUL, or VERDE. You respond with the English equivalent.
+      Valid responses are RED, BLUE, GREEN. If the input is not one of ROJO, AZUL, or VERDE, respond with
+      INVALID. Do not provide any additional information or explanation.
+    defaultTemperature: 0.5
+    deployed: true
+    dnsVerificationStatus: Verified
+    provider: openai
+    subdomain: null
+  functions: []
+  plugins: []

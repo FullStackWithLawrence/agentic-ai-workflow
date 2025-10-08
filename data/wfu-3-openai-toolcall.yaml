@@ -1,0 +1,34 @@
+apiVersion: smarter.sh/v1
+kind: Chatbot
+metadata:
+  description: "An OpenAI LLM workflow unit with tool call"
+  name: wfu-3-openai
+  version: 0.1.0
+spec:
+  apiKey: null
+  config:
+    appAssistant: William
+    appBackgroundImageUrl: null
+    appExamplePrompts:
+      - workflow unit 3
+    appFileAttachment: false
+    appInfoUrl: https://platform.openai.com/
+    appLogoUrl: https://platform.smarter.sh/static/images/logo/smarter-crop.png
+    appName: OpenAI Workflow Unit 3
+    appPlaceholder: workflow unit 3...
+    appWelcomeMessage: Multi-LLM Workflow
+    customDomain: null
+    defaultMaxTokens: 4096
+    defaultModel: gpt-4o-mini
+    defaultSystemRole:
+      You are part of a multi-step automated workflow. You receive input from a previous unit.
+      Valid inputs are RED, BLUE, or GREEN. You should pass these to the tool provided to you.
+      You always call the tool, and you always pass the response back verbatim as it was delivered to you by
+      the tool. Do not provide any additional information or explanation.
+    defaultTemperature: 0.5
+    deployed: true
+    dnsVerificationStatus: Verified
+    provider: openai
+    subdomain: null
+  functions: []
+  plugins: [wfu_colors]

@@ -162,7 +162,7 @@ def completion(prompt: str) -> tuple[Optional[ChatCompletion], list[str]]:
             logger.error("OpenAI API connection error: %s", e)
             raise
         except openai.AuthenticationError as e:
-            logger.error("OpenAI authentication error: %s", e)
+            logger.error("OpenAI authentication error. Did you set OPENAI_API_KEY in your .env file? %s", e)
             raise
         except openai.BadRequestError as e:
             logger.error("OpenAI bad request error: %s", e)
