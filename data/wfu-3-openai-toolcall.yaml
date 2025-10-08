@@ -2,7 +2,7 @@ apiVersion: smarter.sh/v1
 kind: Chatbot
 metadata:
   description: "An OpenAI LLM workflow unit with tool call"
-  name: wfu-3-openai
+  name: wfu_3_openai
   version: 0.1.0
 spec:
   apiKey: null
