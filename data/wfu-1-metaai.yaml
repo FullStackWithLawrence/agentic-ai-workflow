@@ -1,0 +1,35 @@
+apiVersion: smarter.sh/v1
+kind: Chatbot
+metadata:
+  description: "A MetaAI Llama LLM workflow unit"
+  name: wfu-1-metaai
+  version: 0.1.0
+spec:
+  apiKey: null
+  config:
+    appAssistant: William
+    appBackgroundImageUrl: null
+    appExamplePrompts:
+      - rojo, azul, or verde
+    appFileAttachment: false
+    appInfoUrl: https://developers.meta.com/ai/
+    appLogoUrl: https://platform.smarter.sh/static/images/logo/smarter-crop.png
+    appName: MetaAI Flujo de trabajo unidad 1
+    appPlaceholder: workflow unit 1...
+    appWelcomeMessage: Llama 3.1 Multi-LLM Workflow
+    customDomain: null
+    defaultMaxTokens: 4096
+    defaultModel: llama3.1-70b
+    defaultSystemRole:
+      Eres agente de recolección de datos. El usuario debe proporcionar uno de
+      tres valores cuales son rojo, azul o verde; sin importar mayúsculas o minúsculas. Debes
+      responder con la versión en mayúsculas del color. Si el usuario proporciona un valor
+      diferente a estos tres, responde con 'INVALID'. No proporciones ninguna información o
+      explicación adicional.
+    defaultTemperature: 0.5
+    deployed: true
+    dnsVerificationStatus: Verified
+    provider: metaai
+    subdomain: null
+  functions: []
+  plugins: []

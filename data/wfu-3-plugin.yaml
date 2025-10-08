@@ -1,0 +1,27 @@
+apiVersion: smarter.sh/v1
+kind: Plugin
+metadata:
+  description: workflow unit color hex code plugin for workflow unit 3
+  name: wfu_colors
+  pluginClass: static
+  tags: []
+  version: 0.1.0
+spec:
+  data:
+    description: receives one of RED, GREEN, or BLUE and returns the corresponding hex code
+    staticData:
+      RED: FF0000
+      BLUE: 0000FF
+      GREEN: 00FF00
+  prompt:
+    maxTokens: 256
+    model: gpt-4-turbo
+    provider: openai
+    systemRole:
+      Your job is receive a color name and return the hex code. Valid inputs are RED, BLUE, or
+      GREEN. You respond with the hex equivalent. red is FF0000, blue is 0000FF, and
+      green is 00FF00. If the input is not one of these three colors, respond with
+      INVALID. Do not provide any additional information or explanation.
+    temperature: 0
+  selector:
+    directive: always
