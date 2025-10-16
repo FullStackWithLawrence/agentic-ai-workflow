@@ -17,7 +17,7 @@ else
 	$(shell cp .env-example .env)
 endif
 
-.PHONY: analyze pre-commit init lint clean test build release
+.PHONY: analyze pre-commit init lint tear-down test build release
 
 # Default target executed when no arguments are given to make.
 all: help
@@ -40,11 +40,11 @@ pre-commit:
 # create python virtual environments for prod
 # ---------------------------------------------------------
 init:
-	make clean
+	make tear-down
 	$(PYTHON) -m venv venv && \
 	$(ACTIVATE_VENV) && \
 	$(PIP) install --upgrade pip && \
-	$(PIP) install -r requirements/prod.txt && \
+	$(PIP) install -r requirements/base.txt && \
 	deactivate
 
 # ---------------------------------------------------------
@@ -55,7 +55,6 @@ init-dev:
 	npm install && \
 	$(ACTIVATE_VENV) && \
 	$(PIP) install -r requirements/local.txt && \
-	deactivate && \
 	pre-commit install
 
 test:
