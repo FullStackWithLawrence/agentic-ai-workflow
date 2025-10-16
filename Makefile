@@ -85,6 +85,7 @@ docker-push:
 	docker push ${DOCKERHUB_USERNAME}/${REPO_NAME}:latest
 
 docker-run:
+	source .env && \
 	docker run -it -e OPENAI_API_KEY=${OPENAI_API_KEY} \
 		-e ENVIRONMENT=prod \
 		-e MYSQL_HOST=${MYSQL_HOST} \
@@ -97,6 +98,7 @@ docker-run:
 		-e LLM_TOOL_CHOICE=${LLM_TOOL_CHOICE} ${DOCKERHUB_USERNAME}/${REPO_NAME}:latest
 
 docker-test:
+	source .env && \
 	docker run --rm \
 		-e OPENAI_API_KEY=${OPENAI_API_KEY} \
 		-e ENVIRONMENT=local \
@@ -112,6 +114,7 @@ docker-test:
 		python -m unittest discover -s app/
 
 docker-coverage:
+	source .env && \
 	docker run --rm \
 		-e OPENAI_API_KEY=${OPENAI_API_KEY} \
 		-e ENVIRONMENT=local \
