@@ -15,7 +15,7 @@ This project conforms to [12-factor methodology](https://12factor.net/). The 12-
 - 11. **Logs**: [✅] Treat logs as event streams. We get this "for free" from Python logging.
 - 12. **Admin processes**: [✅] Run admin/management tasks as one-off processes. All admin processes are implemented with GitHub Actions and other GitHub management features.
 
-Additionally, we leverage pre-commit to enforce code formatting, linting and to check all of the follow on each commit:
+Where and when possible, we enforce strong data typing within the source code via type hints and annotations. Additionally, we leverage [pre-commit](https://pre-commit.com/) to enforce code formatting, linting and to check all of the following on each commit:
 
 ```console
 codespell................................................................Passed
@@ -43,3 +43,5 @@ check for case conflicts.................................................Passed
 check for merge conflicts................................................Passed
 debug statements (python)............................(no files to check)Skipped
 ```
+
+Finally, we use [semantic-release](https://www.npmjs.com/package/@semantic-release/npm) from Node.js via GitHub Actions to automate version bumps and package releases.
