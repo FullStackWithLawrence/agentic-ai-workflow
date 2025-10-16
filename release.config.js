@@ -21,7 +21,7 @@ module.exports = {
       {
         assets: [
           "CHANGELOG.md",
-          "requirements/prod.txt",
+          "requirements/base.txt",
           "app/__version__.py",
           "pyproject.toml",
           "Dockerfile",
