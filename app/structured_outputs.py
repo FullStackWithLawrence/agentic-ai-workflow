@@ -119,7 +119,7 @@ def register_course_with_structured_output(course_code: str, email: str, full_na
 
 # Example of using OpenAI's beta structured outputs (requires openai>=1.0.0)
 # pylint: disable=unused-argument
-def completion_with_structured_output(prompt: str, response_model: type):
+def completion_with_structured_output(prompt: str, response_model: type) -> None:
     """
     Example of using OpenAI's structured output parsing.
 
@@ -143,4 +143,4 @@ def completion_with_structured_output(prompt: str, response_model: type):
     # pylint: disable=broad-except
     except Exception as e:
         logger.error("Structured completion error: %s", e)
-        return None
+        raise e

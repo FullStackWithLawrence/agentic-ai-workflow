@@ -120,7 +120,7 @@ docker-coverage:
 		-e LOGGING_LEVEL=${LOGGING_LEVEL} \
 		-e LLM_TOOL_CHOICE=${LLM_TOOL_CHOICE} \
 		${DOCKERHUB_USERNAME}/${REPO_NAME}:latest \
-		/bin/bash -c "python -m coverage run --source=app -m unittest discover -s app/tests && python -m coverage report && python -m coverage xml"
+		/bin/bash -c "python -m coverage run --source=app --omit='app/tests/*' -m unittest discover -s app/tests && python -m coverage report -m --omit='app/tests/*' && python -m coverage xml --omit='app/tests/*'"
 
 docker-prune:
 	@if [ "`docker ps -aq`" ]; then \
