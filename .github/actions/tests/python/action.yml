@@ -52,6 +52,10 @@ inputs:
     required: false
     type: string
     default: "utf8mb4"
+  codecov-token:
+    description: "Codecov token for uploading coverage reports"
+    required: true
+    type: string
 
 runs:
   using: "composite"
@@ -137,3 +141,4 @@ runs:
       with:
         files: ./coverage.xml
         fail_ci_if_error: true
+        token: ${{ inputs.codecov-token }}
