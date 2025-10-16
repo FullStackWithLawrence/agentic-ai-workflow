@@ -10,6 +10,6 @@
 -r constraints.in
 
 python-dotenv==1.1.1
-openai==2.0.0
+openai==2.3.0
 PyMySQL==1.1.2
 pydantic==2.11.9
