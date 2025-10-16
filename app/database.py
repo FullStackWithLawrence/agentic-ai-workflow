@@ -2,7 +2,7 @@
 """Database connection and utilities for MySQL."""
 
 from contextlib import contextmanager
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterator, List, Optional
 
 import pymysql
 
@@ -73,7 +73,7 @@ class DatabaseConnection:
             raise pymysql.Error(f"Failed to connect to MySQL database: {e}")
 
     @contextmanager
-    def get_cursor(self):
+    def get_cursor(self) -> Iterator[pymysql.cursors.DictCursor]:
         """
         Context manager for database operations with automatic connection handling.
 
@@ -113,7 +113,7 @@ class DatabaseConnection:
         logger.debug("Executing query: %s with params: %s", query, params)
         with self.get_cursor() as cursor:
             cursor.execute(query, params or ())
-            return cursor.fetchall()
+            return list(cursor.fetchall())
 
     def execute_update(self, query: str, params: Optional[tuple] = None) -> int:
         """
