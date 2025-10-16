@@ -7,6 +7,11 @@ branding:
   icon: "git-pull-request"
   color: "orange"
 inputs:
+  environment:
+    description: "The environment to run tests in, such as local or ci"
+    required: true
+    type: string
+    default: "local"
   python-version:
     description: "The version of Python to use, such as 3.11.0"
     required: true
@@ -97,6 +102,7 @@ runs:
       shell: bash
       run: |
         touch ./.env
+        echo "ENVIRONMENT=${{ env.ENVIRONMENT }}" >> ./.env
         echo "OPENAI_API_ORGANIZATION=${{ env.OPENAI_API_ORGANIZATION }}" >> ./.env
         echo "OPENAI_API_KEY=${{ env.OPENAI_API_KEY }}" >> ./.env
         echo "MYSQL_HOST=${{ env.MYSQL_HOST }}" >> ./.env
@@ -107,6 +113,7 @@ runs:
         echo "MYSQL_CHARSET=${{ env.MYSQL_CHARSET }}" >> ./.env
         echo "DEBUG_MODE=False" >> ./.env
       env:
+        ENVIRONMENT: ${{ inputs.environment }}
         OPENAI_API_ORGANIZATION: ${{ inputs.openai-api-organization }}
         OPENAI_API_KEY: ${{ inputs.openai-api-key }}
         MYSQL_HOST: ${{ inputs.mysql-host }}
@@ -122,4 +129,10 @@ runs:
         GITHUB_ACTIONS: "true"
         DEBUG_MODE: "true"
       run: |
-        make test
+        make coverage
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        files: ./coverage.xml
+        fail_ci_if_error: true

@@ -3,10 +3,11 @@
 [![FullStackWithLawrence](https://a11ybadges.com/badge?text=FullStackWithLawrence&badgeColor=orange&logo=youtube&logoColor=282828)](https://www.youtube.com/@FullStackWithLawrence)<br>
 [![OpenAI](https://a11ybadges.com/badge?logo=openai)](https://platform.openai.com/)
 [![Docker](https://a11ybadges.com/badge?logo=docker)](https://docs.docker.com/)
-[![Python](https://a11ybadges.com/badge?logo=python)](https://www.python.org/)
+[![Python](https://a11ybadges.com/badge?logo=python)](https://www.python.org/)<br>
 ![Unit Tests](https://github.com/FullStackWithLawrence/agentic-ai-workflow/actions/workflows/testsPython.yml/badge.svg?branch=main)
+[![codecov](https://codecov.io/gh/FullStackWithLawrence/agentic-ai-workflow/branch/main/graph/badge.svg)](https://codecov.io/gh/FullStackWithLawrence/agentic-ai-workflow)
 ![GHA pushMain Status](https://img.shields.io/github/actions/workflow/status/FullStackWithLawrence/agentic-ai-workflow/pushMain.yml?branch=main)
-![Auto Assign](https://github.com/FullStackwithLawrence/agentic-ai-workflow/actions/workflows/auto-assign.yml/badge.svg)
+![Auto Assign](https://github.com/FullStackwithLawrence/agentic-ai-workflow/actions/workflows/auto-assign.yml/badge.svg)<br>
 [![Release Notes](https://img.shields.io/github/release/FullStackWithLawrence/agentic-ai-workflow)](https://github.com/FullStackWithLawrence/agentic-ai-workflow/releases)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![hack.d Lawrence McDaniel](https://img.shields.io/badge/hack.d-Lawrence%20McDaniel-orange.svg)](https://lawrencemcdaniel.com)
