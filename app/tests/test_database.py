@@ -4,23 +4,13 @@
 """Test database connectivity."""
 
 # python stuff
-import os
-import sys
 import unittest
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pymysql
 
 from app.database import ConfigurationException, DatabaseConnection
 from app.logging_config import get_logger
-
-
-HERE = os.path.abspath(os.path.dirname(__file__))
-PROJECT_ROOT = str(Path(HERE).parent.parent)
-PYTHON_ROOT = str(Path(PROJECT_ROOT).parent)
-if PYTHON_ROOT not in sys.path:
-    sys.path.append(PYTHON_ROOT)  # noqa: E402
 
 
 logger = get_logger(__name__)

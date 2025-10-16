@@ -25,13 +25,14 @@ FROM base AS requirements
 WORKDIR /dist
 
 # Copy the current directory contents into the container at /app
-COPY requirements/prod.txt requirements.txt
+COPY requirements/base.txt base.txt
+COPY requirements/local.txt local.txt
 
 # Set environment variables
 ENV PYTHONPATH=/dist
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r base.txt
 
 # Install Python dependencies for the local environment for cases where
 # we're going to run python unit tests in the Docker container.

@@ -4,22 +4,12 @@
 """Test Stackademy application."""
 
 # python stuff
-import os
-import sys
 import unittest
-from pathlib import Path
 from unittest.mock import Mock, patch
 
 from app.exceptions import ConfigurationException
 from app.logging_config import get_logger
 from app.stackademy import Stackademy
-
-
-HERE = os.path.abspath(os.path.dirname(__file__))
-PROJECT_ROOT = str(Path(HERE).parent.parent)
-PYTHON_ROOT = str(Path(PROJECT_ROOT).parent)
-if PYTHON_ROOT not in sys.path:
-    sys.path.append(PYTHON_ROOT)  # noqa: E402
 
 
 logger = get_logger(__name__)

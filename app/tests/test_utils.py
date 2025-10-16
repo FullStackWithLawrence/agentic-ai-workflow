@@ -4,20 +4,10 @@
 """Test utils."""
 
 # python stuff
-import os
-import sys
 import unittest
-from pathlib import Path
 from unittest.mock import patch
 
 from app import utils
-
-
-HERE = os.path.abspath(os.path.dirname(__file__))
-PROJECT_ROOT = str(Path(HERE).parent.parent)
-PYTHON_ROOT = str(Path(PROJECT_ROOT).parent)
-if PYTHON_ROOT not in sys.path:
-    sys.path.append(PYTHON_ROOT)  # noqa: E402
 
 
 class TestUtils(unittest.TestCase):
