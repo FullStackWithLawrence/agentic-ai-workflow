@@ -44,9 +44,11 @@ python -m app.agent
 This application can also run as a Docker container.
 
 ```console
-make                # initializes a .env file for OPENAI_API_KEY and DOCKERHUB_ACCESS_TOKEN
-make docker-build   # run Docker compose to containerize your application
-make docker-run     # run the application as a Docker container
+make                 # initializes a .env file for OPENAI_API_KEY and DOCKERHUB_ACCESS_TOKEN
+make docker-build    # run Docker compose to containerize your application
+make docker-test     # run all unit tests
+make docker-coverage # run coverage analysis
+make docker-run      # run the application as a Docker container
 ```
 
 Other Docker commands
