@@ -1,3 +1,10 @@
+## [0.1.3](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.2...v0.1.3) (2025-10-16)
+
+
+### Bug Fixes
+
+* increase unit test coverage ratio to 95% ([045ab40](https://github.com/FullStackWithLawrence/agentic-ai-workflow/commit/045ab409887f2633ae71fbede0aad6f29728839c))
+
 ## [0.1.2](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.1...v0.1.2) (2025-10-01)
 
 
