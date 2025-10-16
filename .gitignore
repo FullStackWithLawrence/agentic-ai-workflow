@@ -1,3 +1,7 @@
+# my own homegrown file to store coverage report output from Docker.
+coverage.out
+
+
 # Jupyter Notebook
 .ipynb_checkpoints
 build
