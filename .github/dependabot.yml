@@ -12,6 +12,7 @@ updates:
       - "lpm0073"
     reviewers:
       - "lpm0073"
+    target-branch: "alpha"
   - package-ecosystem: "npm"
     directory: "/"
     labels:
@@ -24,6 +25,7 @@ updates:
       - "lpm0073"
     reviewers:
       - "lpm0073"
+    target-branch: "alpha"
   - package-ecosystem: "github-actions"
     directory: "/"
     labels:
@@ -35,3 +37,4 @@ updates:
       - "lpm0073"
     reviewers:
       - "lpm0073"
+    target-branch: "alpha"
