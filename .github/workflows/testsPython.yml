@@ -36,3 +36,4 @@ jobs:
           mysql-password: "${{ secrets.MYSQL_PASSWORD }}"
           mysql-database: "${{ secrets.MYSQL_DATABASE }}"
           mysql-charset: "${{ secrets.MYSQL_CHARSET }}"
+          codecov-token: "${{ secrets.CODECOV_TOKEN }}"
