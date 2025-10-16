@@ -26,7 +26,6 @@ WORKDIR /dist
 
 # Copy the current directory contents into the container at /app
 COPY requirements/prod.txt requirements.txt
-COPY requirements/local.txt local.txt
 
 # Set environment variables
 ENV PYTHONPATH=/dist

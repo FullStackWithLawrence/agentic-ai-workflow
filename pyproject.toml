@@ -1,7 +1,7 @@
 [project]
 name = "StackademyAI"
 version = "0.1.5"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 description = "StackademyAI: an AI-powered marketing agent"
 authors = [{ name = "Lawrence McDaniel", email = "lpm0073@gmail.com" }]
 license = { file = "LICENSE" }
