@@ -54,7 +54,7 @@ init-dev:
 	make init && \
 	npm install && \
 	$(ACTIVATE_VENV) && \
-	$(PIP) install -r requirements/dev.txt && \
+	$(PIP) install -r requirements/local.txt && \
 	deactivate && \
 	pre-commit install
 
@@ -72,7 +72,7 @@ clean:
 	rm -rf venv node_modules app/__pycache__ package-lock.json
 
 docker-build:
-	docker build -t ${DOCKERHUB_USERNAME}/${REPO_NAME} .
+	docker build -t ${DOCKERHUB_USERNAME}/${REPO_NAME} . --build-arg ENVIRONMENT=${ENVIRONMENT}
 
 docker-push:
 	source .env && \
@@ -81,7 +81,46 @@ docker-push:
 	docker push ${DOCKERHUB_USERNAME}/${REPO_NAME}:latest
 
 docker-run:
-	docker run -it -e OPENAI_API_KEY=${OPENAI_API_KEY} -e ENVIRONMENT=prod -e MYSQL_HOST=${MYSQL_HOST} -e MYSQL_PORT=${MYSQL_PORT} -e MYSQL_USER=${MYSQL_USER} -e MYSQL_PASSWORD=${MYSQL_PASSWORD} -e MYSQL_DATABASE=${MYSQL_DATABASE} -e MYSQL_CHARSET=${MYSQL_CHARSET} -e LOGGING_LEVEL=${LOGGING_LEVEL} -e LLM_TOOL_CHOICE=${LLM_TOOL_CHOICE} ${DOCKERHUB_USERNAME}/${REPO_NAME}:latest
+	docker run -it -e OPENAI_API_KEY=${OPENAI_API_KEY} \
+		-e ENVIRONMENT=prod \
+		-e MYSQL_HOST=${MYSQL_HOST} \
+		-e MYSQL_PORT=${MYSQL_PORT} \
+		-e MYSQL_USER=${MYSQL_USER} \
+		-e MYSQL_PASSWORD=${MYSQL_PASSWORD} \
+		-e MYSQL_DATABASE=${MYSQL_DATABASE} \
+		-e MYSQL_CHARSET=${MYSQL_CHARSET} \
+		-e LOGGING_LEVEL=${LOGGING_LEVEL} \
+		-e LLM_TOOL_CHOICE=${LLM_TOOL_CHOICE} ${DOCKERHUB_USERNAME}/${REPO_NAME}:latest
+
+docker-test:
+	docker run --rm \
+		-e OPENAI_API_KEY=${OPENAI_API_KEY} \
+		-e ENVIRONMENT=local \
+		-e MYSQL_HOST=${MYSQL_HOST} \
+		-e MYSQL_PORT=${MYSQL_PORT} \
+		-e MYSQL_USER=${MYSQL_USER} \
+		-e MYSQL_PASSWORD=${MYSQL_PASSWORD} \
+		-e MYSQL_DATABASE=${MYSQL_DATABASE} \
+		-e MYSQL_CHARSET=${MYSQL_CHARSET} \
+		-e LOGGING_LEVEL=${LOGGING_LEVEL} \
+		-e LLM_TOOL_CHOICE=${LLM_TOOL_CHOICE} \
+		${DOCKERHUB_USERNAME}/${REPO_NAME}:latest \
+		python -m unittest discover -s app/
+
+docker-coverage:
+	docker run --rm \
+		-e OPENAI_API_KEY=${OPENAI_API_KEY} \
+		-e ENVIRONMENT=local \
+		-e MYSQL_HOST=${MYSQL_HOST} \
+		-e MYSQL_PORT=${MYSQL_PORT} \
+		-e MYSQL_USER=${MYSQL_USER} \
+		-e MYSQL_PASSWORD=${MYSQL_PASSWORD} \
+		-e MYSQL_DATABASE=${MYSQL_DATABASE} \
+		-e MYSQL_CHARSET=${MYSQL_CHARSET} \
+		-e LOGGING_LEVEL=${LOGGING_LEVEL} \
+		-e LLM_TOOL_CHOICE=${LLM_TOOL_CHOICE} \
+		${DOCKERHUB_USERNAME}/${REPO_NAME}:latest \
+		/bin/bash -c "python -m coverage run --source=app -m unittest discover -s app/tests && python -m coverage report && python -m coverage xml"
 
 docker-prune:
 	@if [ "`docker ps -aq`" ]; then \
@@ -97,13 +136,14 @@ docker-prune:
 
 help:
 	@echo '===================================================================='
-	@echo 'analyze         - generate code analysis report'
-	@echo 'release         - force a new GitHub release'
-	@echo 'init            - create a Python virtual environment and install prod dependencies'
-	@echo 'init-dev        - install dev dependencies'
-	@echo 'test            - run Python unit tests'
-	@echo 'lint            - run Python linting'
-	@echo 'clean           - destroy the Python virtual environment'
+	@echo 'analyze		 - generate code analysis report'
+	@echo 'release		 - force a new GitHub release'
+	@echo 'init		    - create a Python virtual environment and install prod dependencies'
+	@echo 'init-dev		- install dev dependencies'
+	@echo 'test		    - run Python unit tests'
+	@echo 'lint		    - run Python linting'
+	@echo 'clean		   - destroy the Python virtual environment'
 	@echo 'docker-build    - build the Docker image'
 	@echo 'docker-push     - push the Docker image to DockerHub'
 	@echo 'docker-run      - run the Docker image'
+	@echo 'docker-test     - run the Docker image for testing'
