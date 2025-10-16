@@ -73,7 +73,7 @@ lint:
 	flake8 ./app/
 	pylint ./app/**/*.py
 
-clean:
+tear-down:
 	rm -rf venv node_modules app/__pycache__ package-lock.json
 
 docker-build:
@@ -146,11 +146,11 @@ help:
 	@echo 'init-dev		- install dev dependencies'
 	@echo 'test			- run Python unit tests'
 	@echo 'lint			- run Python linting'
-	@echo 'clean			- destroy the Python virtual environment'
+	@echo 'tear-down		- destroy the Python virtual environment'
 	@echo 'pre-commit		- install and run pre-commit hooks'
 	@echo 'docker-build		- build the Docker image'
 	@echo 'docker-run		- run the Docker image'
 	@echo 'docker-test		- run the Docker image for testing'
 	@echo 'docker-coverage		- run the Docker image for testing + coverage report'
 	@echo 'docker-push		- push the Docker image to DockerHub'
-	@echo 'docker-prune		- remove unused Docker containers/images/builders'
+	@echo 'docker-prune		- Docker tear-down containers/images/builders'
