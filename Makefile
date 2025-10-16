@@ -61,6 +61,11 @@ init-dev:
 test:
 	python -m unittest discover -s app/
 
+coverage:
+	python -m coverage run --source=app --omit='app/tests/*' -m unittest discover -s app/tests
+	python -m coverage report -m --omit='app/tests/*'
+	python -m coverage xml --omit='app/tests/*'
+
 lint:
 	isort .
 	pre-commit run --all-files
