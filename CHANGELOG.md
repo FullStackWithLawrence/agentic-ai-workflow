@@ -1,3 +1,10 @@
+## [0.1.5](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.4...v0.1.5) (2025-10-16)
+
+
+### Bug Fixes
+
+* add codecove badge ([1155daf](https://github.com/FullStackWithLawrence/agentic-ai-workflow/commit/1155daf1528ad54b674347851dce1d625013afc7))
+
 ## [0.1.4](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.3...v0.1.4) (2025-10-16)
 
 
