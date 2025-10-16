@@ -33,12 +33,12 @@ class TestUtils(unittest.TestCase):
         self.assertIn("hello", result)
 
     def test_dump_json_colored_not_serializable(self):
-        """Test that dump_json_colored raises TypeError for non-serializable data."""
+        """Test that dump_json_colored raises ValueError for unsupported colors."""
 
         class NotSerializable:
             pass
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             utils.dump_json_colored(NotSerializable(), "red")
 
     def test_color_text_unsupported_color(self):
