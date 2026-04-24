@@ -69,11 +69,28 @@ jobs:
   notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
+    if: always()
     steps:
-      - name: Notify on test results
-        run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+      - name: Send email on failure
+        if: needs.python-unit-tests.result == 'failure'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "❌ Python Unit Tests FAILED - ${{ github.repository }}"
+          to: ${{ secrets.EMAIL_USERNAME }}
+          from: GitHub Actions <${{ secrets.EMAIL_USERNAME }}>
+          body: |
+            The Python Unit Tests workflow has failed.
+
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Triggered by: ${{ github.actor }}
+
+            View the failed run here:
+            ${{ github.server_url }}/${{ github.repository }}/actions/run/${{ github.run_id }}
+
+
