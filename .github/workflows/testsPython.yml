@@ -13,10 +13,19 @@
 #   1. Checkout repository code
 #   2. Set up Python environment using a custom action
 #   3. Run unit tests and report results
+#   4. Send notifications based on test outcome (Job #2)
 #
 # Notes:
 #   - secrets are set in https://github.com/smarter-sh/smarter/settings/secrets/actions
 #   - Integrates with Codecov for coverage reporting
+#
+# Notification strategy (Job #2):
+#   - On SUCCESS: prints a confirmation message to the Actions log.
+#   - On FAILURE: automatically opens a GitHub Issue in this repository,
+#     tagged with the 'ci-failure' label, assigned to the actor who
+#     triggered the run, and containing a direct link to the failed run
+#     for rapid triage.
+#     Uses the built-in GITHUB_TOKEN - no external secrets required.
 ###############################################################################
 name: Python Unit Tests
 
@@ -63,17 +72,88 @@ jobs:
           codecov-token: "${{ secrets.CODECOV_TOKEN }}"
 
   # Job #2: Notifications (Mini-capstone assignment)
-  # This job will run after the Python unit tests and
-  # is scaffolded to facilitate sending notifications based
-  # on the test results.
+  #
+  # Runs after Job #1 regardless of its outcome (if: always()).
+  # - SUCCESS -> logs a confirmation message to the Actions console.
+  # - FAILURE -> opens a GitHub Issue in this repository so the failure
+  #              is visible, trackable, and assigned for follow-up.
+  #
+  # Implementation notes:
+  #   * 'if: always()' is required so this job is not skipped when
+  #     python-unit-tests fails (GitHub skips dependent jobs on failure
+  #     by default unless this condition is explicitly set).
+  #   * actions/github-script@v7 calls the GitHub REST API using the
+  #     automatically-provided GITHUB_TOKEN - no extra secrets needed.
+  #   * The issue is assigned to the actor who triggered the workflow
+  #     and labelled 'ci-failure' for easy filtering in the Issues tab.
   notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
+    if: always() # run even when python-unit-tests fails or is cancelled
     steps:
-      - name: Notify on test results
+      # ── Step 1: log outcome to the Actions console ──────────────────────
+      - name: Log test outcome
         run: |
           if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
+            echo "✅ Python unit tests passed successfully. No action required."
           else
-            echo "failure notifications go here"
+            echo "❌ Python unit tests FAILED (result: ${{ needs.python-unit-tests.result }})."
+            echo "A GitHub Issue will be opened to track this failure."
           fi
+
+      # ── Step 2: open a GitHub Issue on failure ───────────────────────────
+      # Uses the built-in GITHUB_TOKEN (no extra secrets required).
+      # The issue body includes a direct link to the failed run for rapid
+      # triage and a brief remediation checklist.
+      - name: Open GitHub Issue on failure
+        if: needs.python-unit-tests.result != 'success'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const result   = "${{ needs.python-unit-tests.result }}";
+            const runUrl   = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const shortSha = context.sha.slice(0, 7);
+            const branch   = context.ref.replace('refs/heads/', '');
+            const today    = new Date().toISOString().slice(0, 10);
+
+            // Ensure the 'ci-failure' label exists (silently skip if it already does)
+            try {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                name:  'ci-failure',
+                color: 'd73a4a',
+                description: 'Automated: CI pipeline failure',
+              });
+            } catch (_) { /* label already exists - that is fine */ }
+
+            const issue = await github.rest.issues.create({
+              owner:     context.repo.owner,
+              repo:      context.repo.repo,
+              title:     `❌ Python Unit Tests ${result.toUpperCase()} – ${today} (${shortSha})`,
+              labels:    ['ci-failure'],
+              assignees: [context.actor],
+              body: [
+                '## ❌ Python Unit Tests Failed',
+                '',
+                '| Field | Value |',
+                '|---|---|',
+                `| **Status**    | \`${result}\` |`,
+                `| **Workflow**  | ${context.workflow} |`,
+                `| **Branch**    | \`${branch}\` |`,
+                `| **Commit**    | \`${shortSha}\` |`,
+                `| **Triggered** | @${context.actor} |`,
+                `| **Run**       | [View failed run](${runUrl}) |`,
+                '',
+                '### What to do',
+                '1. Click the **View failed run** link above.',
+                '2. Open the **python-unit-tests** job and expand the failing step.',
+                '3. Fix the issue, commit, and push — the next passing run will not reopen this issue.',
+                '',
+                '---',
+                '_This issue was created automatically by the Python Unit Tests workflow._',
+              ].join('\n'),
+            });
+
+            console.log(`GitHub Issue opened: ${issue.data.html_url}`);
