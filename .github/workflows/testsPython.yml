@@ -86,7 +86,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
-              body: `🔴 **Unit Tests Failed**
+              body: `🔴 **Unit Tests Failed!!!!!**
 
               Something broke in this PR.
 
