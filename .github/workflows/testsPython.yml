@@ -35,6 +35,11 @@ on:
 env:
   python-version: "3.13"
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   # Job #1: Run Python unit tests
   #
@@ -66,7 +71,7 @@ jobs:
   # This job will run after the Python unit tests and
   # is scaffolded to facilitate sending notifications based
   # on the test results.
-  notifications:
+   notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
     if: failure()  # Only run if tests failed
