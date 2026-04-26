@@ -18,6 +18,8 @@ def main(prompts: Optional[Tuple[str, ...]] = None) -> None:
     print("Stackademy User Registration Demo")
     print("=" * 50)
 
+    assert False
+
     i = 0
     user_prompt = prompts[i] if prompts else input("Welcome to Stackademy! How can I assist you today? ")
 
