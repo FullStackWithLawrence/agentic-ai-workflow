@@ -41,7 +41,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  # Job #1: Run Python unit tests
+# Job #1: Run Python unit tests
   #
   # This job will run on an Ubuntu runner and execute the Python
   # tests by using a custom action located in ./.github/actions/tests/python.
@@ -71,7 +71,7 @@ jobs:
   # This job will run after the Python unit tests and
   # is scaffolded to facilitate sending notifications based
   # on the test results.
-   notifications:
+  notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
     if: failure()  # Only run if tests failed
