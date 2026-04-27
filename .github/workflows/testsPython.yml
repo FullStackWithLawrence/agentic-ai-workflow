@@ -69,6 +69,7 @@ jobs:
   notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
+    if: always()
     steps:
       - name: Notify on test results
         run: |
