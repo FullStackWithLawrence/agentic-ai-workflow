@@ -28,8 +28,8 @@ on:
   push:
     branches: #
       - main #
-      - next # Trigger workflow on pushes to main and next
-      - stanDev
+      # - next # Trigger workflow on pushes to main and next
+      - EDBIDev
     paths: # branches, but only if Python files are changed
       - "**.py" #
 
