@@ -66,14 +66,21 @@ jobs:
   # This job will run after the Python unit tests and
   # is scaffolded to facilitate sending notifications based
   # on the test results.
-  notifications:
-    needs: python-unit-tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notify on test results
-        run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+  notifications:
+    needs: python-unit-tests
+    runs-on: ubuntu-latest
+  
+ if: always() #prevents the notification job from being cancelled when Job 1 fails
+    steps:
+      - name: Notify on test results
+        run: |
+         
+RESULT="${{ needs.python-unit-tests.result }}"
+
+          if [ "${{
+needs.python-unit-tests.result }}" == "success" ]; then
+           
+echo "success notifications go here"
+          else
+            echo "failure notifications go here"
+          fi
