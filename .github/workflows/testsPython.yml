@@ -29,6 +29,7 @@ on:
     branches: #
       - main #
       - next # Trigger workflow on pushes to main and next
+      - stanDev
     paths: # branches, but only if Python files are changed
       - "**.py" #
 
