@@ -3,6 +3,7 @@
 # Run Python unit tests
 #------------------------------------------------------------------------------
 name: Test Python
+description: "Run Python unit tests in a specified environment"
 branding:
   icon: "git-pull-request"
   color: "orange"
