@@ -35,13 +35,8 @@ on:
 env:
   python-version: "3.13"
 
-permissions:
-  contents: read
-  issues: write
-  pull-requests: write
-
 jobs:
-# Job #1: Run Python unit tests
+  # Job #1: Run Python unit tests
   #
   # This job will run on an Ubuntu runner and execute the Python
   # tests by using a custom action located in ./.github/actions/tests/python.
@@ -74,27 +69,11 @@ jobs:
   notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
-    if: failure()  # Only run if tests failed
     steps:
-      - name: Comment on PR with failure details
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const prNumber = context.payload.pull_request.number;
-
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-              body: `🔴 **Unit Tests Failed**
-
-              Something broke in this PR.
-
-              **Details:**
-              - Workflow: ${context.workflow}
-              - Branch: ${context.ref}
-              - Run ID: ${context.runId}
-
-              🔎 View logs:
-              https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
-            });
+      - name: Notify on test results
+        run: |
+          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
+            echo "success notifications go here"
+          else
+            echo "failure notifications go here"
+          fi
