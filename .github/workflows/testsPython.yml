@@ -79,5 +79,5 @@ jobs:
           if [ "$RESULT" == "success" ]; then
             echo "Success! Build passed for $USER_NAME."
           else
-            echo "Failure: Review logs for error details."
+            echo "Failure: $USER_NAME, review logs for error details."
           fi
