@@ -79,6 +79,8 @@ jobs:
             echo "failure notifications go here"
           fi
   email-notification:
+    if: ${{ always() }}
+    needs: python-unit-tests
     runs-on: ubuntu-latest
     steps:
       - name: Send mail to Team
