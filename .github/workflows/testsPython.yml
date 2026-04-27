@@ -68,6 +68,7 @@ jobs:
   # is scaffolded to facilitate sending notifications based
   # on the test results.
   notifications:
+    if: ${{ always() }}
     needs: python-unit-tests
     runs-on: ubuntu-latest
     steps:
