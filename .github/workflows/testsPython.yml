@@ -31,6 +31,7 @@ on:
       - next # Trigger workflow on pushes to main and next
     paths: # branches, but only if Python files are changed
       - "**.py" #
+      - ".github/workflows/**.yml"
 
 env:
   python-version: "3.13"
@@ -69,11 +70,14 @@ jobs:
   notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
+    if: always()  # prevents the notification job from being cancelled if Job 1 fails.
     steps:
       - name: Notify on test results
         run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
+         USER_NAME=${{ secrets.NOTIFY_USER }}  
+         RESULT="${{ needs.python-unit-tests.result }}"
+          if [ "$RESULT" == "success" ]; then
+            echo "Success! Build passed for $USER_NAME."
           else
-            echo "failure notifications go here"
+            echo "Failure: $USER_NAME, review logs for error details."
           fi
