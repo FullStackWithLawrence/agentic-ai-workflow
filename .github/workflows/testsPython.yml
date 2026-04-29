@@ -66,85 +66,16 @@ jobs:
   # This job will run after the Python unit tests and
   # is scaffolded to facilitate sending notifications based
   # on the test results.
-  # notifications:
   notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
-    # Optional: Parameterize the addressee (though GitHub comments go to the PR/Issue author by default)
-    env:
-      TARGET_USER: ${{ secrets.NOTIFICATION_USER || github.actor }}
-
     steps:
-      - name: Post Failure Comment
-        # Only run if the python-unit-tests job failed
-        if: needs.python-unit-tests.result == 'failure'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const workflowName = context.workflow;
-            const jobName = 'python-unit-tests';
-            const runId = context.runId;
-            const sha = context.sha;
-            const repo = context.repo;
-            
-            // Construct the message
-            const message = `
-              ❌ **Workflow Failed!**
-              
-              *   **Repository:** ${repo.owner}/${repo.repo}
-              *   **Workflow:** ${workflowName}
-              *   **Job:** ${jobName}
-              *   **Status:** FAILED
-              *   **Commit:** [\`${sha.substring(0, 7)}\`](${context.payload.pull_request?.html_url || `https://github.com/${repo.owner}/${repo.repo}/commit/${sha}`})
-              *   **Run Link:** [View Logs](${context.serverUrl}/${repo.owner}/${repo.repo}/actions/runs/${runId})
-              
-              @${process.env.TARGET_USER}, please check the logs.
-            `;
-
-            try {
-              // Try to comment on the Pull Request if it exists
-              if (context.payload.pull_request) {
-                await github.rest.issues.createComment({
-                  owner: repo.owner,
-                  repo: repo.repo,
-                  issue_number: context.payload.pull_request.number,
-                  body: message
-                });
-                core.info(`Comment posted on PR #${context.payload.pull_request.number}`);
-              } else {
-                // If no PR, comment on the commit (via the associated issue or just log)
-                // Note: GitHub Actions cannot directly "comment" on a commit hash in the UI 
-                // unless there is an open PR or Issue.
-                // Fallback: Create an issue if none exists, or just log to console.
-                // For this assignment, logging to console is sufficient if no PR exists.
-                core.warning("No open Pull Request found. Notification logged to workflow output.");
-                core.info(message);
-                
-                // Optional: Create an issue for the failure if you want persistent tracking
-                // await github.rest.issues.create({
-                //   owner: repo.owner,
-                //   repo: repo.repo,
-                //   title: `🚨 Workflow Failure: ${workflowName}`,
-                //   body: message
-                // });
-              }
-            } catch (error) {
-              core.error(`Failed to post comment: ${error.message}`);
-              throw error;
-            }
-
-      - name: Post Success Comment (Optional)
-        # Only run if the job succeeded (optional, usually we only care about failures)
-        if: needs.python-unit-tests.result == 'success'
+      - name: Notify on test results
         run: |
-          echo "✅ Tests passed successfully. No failure notification needed."
-      
-      - name: Notify on failure
-        if: failure()
-        run: |
-          echo "❌ Python unit tests failed!" >> $GITHUB_STEP_SUMMARY
-          echo "Repository: $GITHUB_REPOSITORY" >> $GITHUB_STEP_SUMMARY
-          echo "Commit: $GITHUB_SHA" >> $GITHUB_STEP_SUMMARY
-          echo "Triggered by: $GITHUB_ACTOR" >> $GITHUB_S
-          exit 1
+          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
+            echo "success notifications go here"
+          else
+            echo "failure notifications go here"
+          fi
+
 
