@@ -70,7 +70,7 @@ jobs:
     needs: python-unit-tests
     runs-on: ubuntu-latest
     steps:
-      - name: Send success email
+      - name: Send email notification
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
