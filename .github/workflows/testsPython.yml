@@ -82,12 +82,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: "❌ Python Unit Tests Failed",
-              body: `@${process.env.NOTIFY_USER}
-The Python unit tests failed.
-
-• Workflow: ${context.workflow}
-• Branch: ${context.ref}
-• Commit: ${context.sha}
-
-Please check the GitHub Actions logs for details.`
+              body: `@${process.env.NOTIFY_USER}\nThe Python unit tests failed.\n\n• Workflow: ${context.workflow}\n• Branch: ${context.ref}\n• Commit: ${context.sha}\n\nPlease check the GitHub Actions logs for details.`
             })
