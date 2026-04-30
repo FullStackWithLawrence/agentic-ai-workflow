@@ -68,12 +68,29 @@ jobs:
   # on the test results.
   notifications:
     needs: python-unit-tests
+    if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: Notify on test results
-        run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+      # 1. Notify on SUCCESS  
+      - name: Slack Notification on Success
+        if: ${{ needs.python-unit-tests.result == 'success' }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: general
+          SLACK_COLOR: 'good'
+          SLACK_ICON: https://github.com/rtCamp.png?size=48
+          SLACK_TITLE: 'Test Success'
+          SLACK_MESSAGE: 'Python 3.13 Unit Tests passed successfully! ✅'
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+      # 2. Notify on FAILURE
+      - name: Slack Notification on Failure
+        if: ${{ needs.python-unit-tests.result == 'failure' }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: general
+          SLACK_COLOR: 'danger'
+          SLACK_ICON: https://github.com/rtCamp.png?size=48
+          SLACK_TITLE: 'Test Failure'
+          SLACK_MESSAGE: 'Python 3.13 Unit Tests failed. Please check the logs. ❌'
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
