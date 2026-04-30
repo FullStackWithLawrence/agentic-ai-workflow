@@ -78,7 +78,7 @@ jobs:
 #            echo "failure notifications go here"
 #          fi
     name: Notify Discord on failure
-       if: failure()
+       if: always()
        run: |
           curl -H "Content-Type: application/json" \
             -X POST \
