@@ -15,22 +15,23 @@
 #   3. Run unit tests and report results
 #
 # Notes:
-#   - secrets are set in https://github.com/smarter-sh/smarter/settings/secrets/actions
+#   - Secrets are set in https://github.com/smarter-sh/smarter/settings/secrets/actions
 #   - Integrates with Codecov for coverage reporting
 ###############################################################################
+
 name: Python Unit Tests
 
 on:
-  workflow_dispatch: # Allows the workflow to be manually triggered from the GitHub Actions tab
-  pull_request: #
-    paths: # Trigger workflow on pull requests, but
-      - "**.py" # only if Python files are changed
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "**.py"
   push:
-    branches: #
-      - main #
-      - next # Trigger workflow on pushes to main and next
-    paths: # branches, but only if Python files are changed
-      - "**.py" #
+    branches:
+      - main
+      - next
+    paths:
+      - "**.py"
 
 env:
   python-version: "3.13"
@@ -38,21 +39,17 @@ env:
 
 jobs:
   # Job #1: Run Python unit tests
-  #
-  # This job will run on an Ubuntu runner and execute the Python
-  # tests by using a custom action located in ./.github/actions/tests/python.
   python-unit-tests:
-    runs-on: ubuntu-latest # the runner (remote machine) will use Ubuntu OS
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        id: checkout
         uses: actions/checkout@v6
 
       - name: Run Python tests
         uses: ./.github/actions/tests/python
         with:
           environment: "local"
-          python-version: "${{ env.python-version}}"
+          python-version: "${{ env.python-version }}"
           openai-api-organization: "${{ secrets.OPENAI_API_ORGANIZATION }}"
           openai-api-key: "${{ secrets.OPENAI_API_KEY }}"
           mysql-host: "${{ secrets.MYSQL_HOST }}"
@@ -64,13 +61,9 @@ jobs:
           codecov-token: "${{ secrets.CODECOV_TOKEN }}"
 
   # Job #2: Notifications (Mini-capstone assignment)
-  # This job will run after the Python unit tests and
-  # is scaffolded to facilitate sending notifications based
-  # on the test results.
   notifications:
     needs: python-unit-tests
-    runs-on: ubuntu-latest    
-# Only run this job if the test job failed
+    runs-on: ubuntu-latest
     if: needs.python-unit-tests.result == 'failure'
 
     steps:
@@ -82,5 +75,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: "❌ Python Unit Tests Failed",
-              body: `@${process.env.NOTIFY_USER}The Python unit tests failed.• Workflow: ${context.workflow}• Branch: ${context.ref}• Commit: ${context.sha}Please check the GitHub Actions logs for details.`
-            })
+              body: `@${process.env.NOTIFY_USER}The Python unit tests failed.Please check the GitHub Actions logs for details.`
+            )
+            ''
