@@ -66,14 +66,28 @@ jobs:
   # This job will run after the Python unit tests and
   # is scaffolded to facilitate sending notifications based
   # on the test results.
-  notifications:
-    needs: python-unit-tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notify on test results
-        run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+#  notifications:
+#    needs: python-unit-tests
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Notify on test results
+#        run: |
+#          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
+#            echo "success notifications go here"
+#          else
+#            echo "failure notifications go here"
+#          fi
+      - name: Notify Slack on failure
+        if: failure()   # only runs when a previous step fails
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          channel-id: "YOUR_CHANNEL_ID"
+          slack-message: |
+            :red_circle: *Build failed!*
+            Repo:    '${{ github.repository }}'
+            Branch:  '${{ github.ref_name }}'
+            Commit:  '${{ github.sha }}'
+            Actor:   ${{ github.actor }}
+            Logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
