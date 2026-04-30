@@ -77,17 +77,29 @@ jobs:
 #          else
 #            echo "failure notifications go here"
 #          fi
-      - name: Notify Slack on failure
-        if: failure()   # only runs when a previous step fails
-        uses: slackapi/slack-github-action@v2.0.0
-        with:
-          channel-id: "YOUR_CHANNEL_ID"
-          slack-message: |
-            :red_circle: *Build failed!*
-            Repo:    '${{ github.repository }}'
-            Branch:  '${{ github.ref_name }}'
-            Commit:  '${{ github.sha }}'
-            Actor:   ${{ github.actor }}
-            Logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    name: Notify Discord on failure
+       if: failure()
+       run: |
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d '{
+              "embeds": [{
+                "title": "❌ CI Build Failed",
+                "color": 15548997,
+                "fields": [
+                  {"name": "Repository", "value": "'"$REPO"'",   "inline": true},
+                  {"name": "Branch",     "value": "'"$BRANCH"'", "inline": true},
+                  {"name": "Commit",     "value": "'"$SHA"'",    "inline": false},
+                  {"name": "Triggered by", "value": "'"$ACTOR"'","inline": true},
+                  {"name": "Logs",       "value": "[View run]('"$LOGS_URL"')", "inline": false}
+                ]
+              }]
+            }' \
+            "$DISCORD_WEBHOOK_URL"
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          REPO:                ${{ github.repository }}
+          BRANCH:              ${{ github.ref_name }}
+          SHA:                 ${{ github.sha }}
+          ACTOR:               ${{ github.actor }}
+          LOGS_URL:            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
