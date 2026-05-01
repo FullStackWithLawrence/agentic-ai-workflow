@@ -69,11 +69,16 @@ jobs:
   notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
+    if: always()  # Add this line
     steps:
       - name: Notify on test results
         run: |
           if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
+            echo "::notice title=Tests Passed::All Python tests passed successfully! ✅"
+            echo "## ✅ Test Success" >> $GITHUB_STEP_SUMMARY
+            echo "All tests passed successfully" >> $GITHUB_STEP_SUMMARY
           else
-            echo "failure notifications go here"
+            echo "::error title=Tests Failed::Some Python tests failed. ❌"
+            echo "## ❌ Test Failure" >> $GITHUB_STEP_SUMMARY
+            echo "Some tests failed." >> $GITHUB_STEP_SUMMARY
           fi
