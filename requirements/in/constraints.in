@@ -24,7 +24,7 @@ filelock>=3.19.0,<4.0.0
 idna>=3.10,<4.0.0
 
 # Used for parsing INI files; required by pytest for configuration file support.
-iniconfig>=2.1.0,<3.0.0
+iniconfig>=2.3.0,<3.0.0
 
 # JSON query language; required by boto3 and other AWS SDKs for querying JSON responses.
 jmespath>=1.0.1,<2.0.0
