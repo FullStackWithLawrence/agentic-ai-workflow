@@ -79,7 +79,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "Tests Passed!*",
+              "text": "Tests Passed",
               "attachments": [
                 {
                   "color": "#36A64F",
