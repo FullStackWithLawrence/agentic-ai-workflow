@@ -5,43 +5,41 @@
 #   Runs Python unit tests automatically on pull requests and pushes to main/next.
 #
 # Triggers:
-#   - On push to main or next branches (Python files only)
-#   - On pull requests affecting Python files
 #   - Manual dispatch
+#   - Pull requests affecting Python files or this workflow file
+#   - Pushes to main/next affecting Python files or this workflow file
 #
 # Key Steps:
 #   1. Checkout repository code
-#   2. Set up Python environment using a custom action
-#   3. Run unit tests and report results
-#
-# Notes:
-#   - secrets are set in https://github.com/smarter-sh/smarter/settings/secrets/actions
-#   - Integrates with Codecov for coverage reporting
+#   2. Run Python unit tests using the custom Python test action
+#   3. Create a GitHub Issue notification if the Python unit tests fail
 ###############################################################################
+
 name: Python Unit Tests
 
 on:
-  workflow_dispatch: # Allows the workflow to be manually triggered from the GitHub Actions tab
-  pull_request: #
-    paths: # Trigger workflow on pull requests, but
-      - "**.py" # only if Python files are changed
+  workflow_dispatch:
+
+  pull_request:
+    paths:
+      - "**.py"
+      - ".github/workflows/testsPython.yml"
+
   push:
-    branches: #
-      - main #
-      - next # Trigger workflow on pushes to main and next
-    paths: # branches, but only if Python files are changed
-      - "**.py" #
+    branches:
+      - main
+      - next
+    paths:
+      - "**.py"
+      - ".github/workflows/testsPython.yml"
 
 env:
   python-version: "3.13"
 
 jobs:
-  # Job #1: Run Python unit tests
-  #
-  # This job will run on an Ubuntu runner and execute the Python
-  # tests by using a custom action located in ./.github/actions/tests/python.
   python-unit-tests:
-    runs-on: ubuntu-latest # the runner (remote machine) will use Ubuntu OS
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         id: checkout
@@ -51,7 +49,7 @@ jobs:
         uses: ./.github/actions/tests/python
         with:
           environment: "local"
-          python-version: "${{ env.python-version}}"
+          python-version: "${{ env.python-version }}"
           openai-api-organization: "${{ secrets.OPENAI_API_ORGANIZATION }}"
           openai-api-key: "${{ secrets.OPENAI_API_KEY }}"
           mysql-host: "${{ secrets.MYSQL_HOST }}"
@@ -62,11 +60,7 @@ jobs:
           mysql-charset: "${{ secrets.MYSQL_CHARSET }}"
           codecov-token: "${{ secrets.CODECOV_TOKEN }}"
 
-  # Job #2: Notifications (Mini-capstone assignment)
-  # This job will run after the Python unit tests and
-  # is scaffolded to facilitate sending notifications based
-  # on the test results.
-   notifications:
+  notifications:
     name: Notify on Python test failure
     needs: python-unit-tests
     if: ${{ always() }}
@@ -77,8 +71,8 @@ jobs:
       issues: write
 
     env:
-      NOTIFY_USER: ${{ vars.NOTIFY_USER || github.actor }}
-      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      NOTIFY_USER: "${{ vars.NOTIFY_USER || github.actor }}"
+      RUN_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
     steps:
       - name: Create GitHub issue when Python tests fail
