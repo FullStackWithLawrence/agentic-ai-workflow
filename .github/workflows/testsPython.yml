@@ -66,14 +66,49 @@ jobs:
   # This job will run after the Python unit tests and
   # is scaffolded to facilitate sending notifications based
   # on the test results.
-  notifications:
+   notifications:
+    name: Notify on Python test failure
     needs: python-unit-tests
+    if: ${{ always() }}
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      issues: write
+
+    env:
+      NOTIFY_USER: ${{ vars.NOTIFY_USER || github.actor }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
     steps:
-      - name: Notify on test results
+      - name: Create GitHub issue when Python tests fail
+        if: ${{ needs.python-unit-tests.result == 'failure' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+          cat > failure-notification.md <<EOF
+          @${NOTIFY_USER}
+
+          The **Python Unit Tests** job failed.
+
+          **Repository:** ${{ github.repository }}
+          **Workflow:** ${{ github.workflow }}
+          **Run number:** ${{ github.run_number }}
+          **Branch:** ${{ github.ref_name }}
+          **Commit:** ${{ github.sha }}
+          **Triggered by:** @${{ github.actor }}
+          **Job result:** ${{ needs.python-unit-tests.result }}
+
+          **Failed run:** ${RUN_URL}
+
+          Please review the failed job logs, fix the issue, and rerun the workflow.
+          EOF
+
+          gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "CI failure: Python Unit Tests #${{ github.run_number }}" \
+            --body-file failure-notification.md
+
+      - name: Confirm no notification is needed
+        if: ${{ needs.python-unit-tests.result == 'success' }}
+        run: echo "Python unit tests passed. No failure notification needed."
