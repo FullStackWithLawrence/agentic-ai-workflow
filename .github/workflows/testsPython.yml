@@ -13,10 +13,12 @@
 #   1. Checkout repository code
 #   2. Set up Python environment using a custom action
 #   3. Run unit tests and report results
+#   4. Send Slack notification on success or failure
 #
 # Notes:
 #   - secrets are set in https://github.com/smarter-sh/smarter/settings/secrets/actions
 #   - Integrates with Codecov for coverage reporting
+#   - SLACK_WEBHOOK_URL must be added to repo secrets
 ###############################################################################
 name: Python Unit Tests
 
@@ -37,11 +39,8 @@ env:
 
 jobs:
   # Job #1: Run Python unit tests
-  #
-  # This job will run on an Ubuntu runner and execute the Python
-  # tests by using a custom action located in ./.github/actions/tests/python.
   python-unit-tests:
-    runs-on: ubuntu-latest # the runner (remote machine) will use Ubuntu OS
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         id: checkout
@@ -63,23 +62,19 @@ jobs:
           codecov-token: "${{ secrets.CODECOV_TOKEN }}"
 
   # Job #2: Notifications (Mini-capstone assignment)
-  # This job will run after the Python unit tests and
-  # is scaffolded to facilitate sending notifications based
-  # on the test results.
+  # Sends a Slack notification on success or failure.
   notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
+    if: always() # ← ensures this job runs even when tests fail
     steps:
-      - name: Notify on test results
-        run: |
-           steps:
       - name: Notify Slack on success
         if: needs.python-unit-tests.result == 'success'
         uses: slackapi/slack-github-action@v1.27.0
         with:
           payload: |
             {
-              "text": "Tests Passed",
+              "text": "*Tests Passed!*",
               "attachments": [
                 {
                   "color": "#36A64F",
@@ -104,7 +99,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "Tests Failed!",
+              "text": "*Tests Failed!*",
               "attachments": [
                 {
                   "color": "#FF0000",
@@ -122,4 +117,3 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-
