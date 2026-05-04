@@ -68,12 +68,42 @@ jobs:
   # on the test results.
   notifications:
     needs: python-unit-tests
+    if: always()
     runs-on: ubuntu-latest
     steps:
+      # Notifications in GitHub Actions
       - name: Notify on test results
         run: |
           if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
+            echo "Tests passed ✅"
           else
-            echo "failure notifications go here"
+            echo "Tests failed ❌"
           fi
+      # Email notification using Brevo when tests pass, BREVO_API_KEY is set in repository secrets
+      - name: Send success email
+        if: ${{ needs.python-unit-tests.result == 'success' }}
+        run: |
+          curl -X POST https://api.brevo.com/v3/smtp/email \
+            -H "accept: application/json" \
+            -H "api-key: ${{ secrets.BREVO_API_KEY }}" \
+            -H "content-type: application/json" \
+            -d '{
+              "sender": { "email": "yongchuangchen@gmail.com" },
+              "to": [{ "email": "chenyongchuang@hotmail.com" }],
+              "subject": "Tests Passed ✅",
+              "htmlContent": "<p>All tests passed successfully.</p>"
+            }'
+      # Email notification using Brevo when tests fail, BREVO_API_KEY is set in repository secrets
+      - name: Send failure email
+        if: ${{ needs.python-unit-tests.result == 'failure' }}
+        run: |
+          curl -X POST https://api.brevo.com/v3/smtp/email \
+            -H "accept: application/json" \
+            -H "api-key: ${{ secrets.BREVO_API_KEY }}" \
+            -H "content-type: application/json" \
+            -d '{
+              "sender": { "email": "yongchuangchen@gmail.com" },
+              "to": [{ "email": "chenyongchuang@hotmail.com" }],
+              "subject": "Tests Failed ❌",
+              "htmlContent": "<p>Tests failed. Check logs in GitHub Actions.</p>"
+            }'
