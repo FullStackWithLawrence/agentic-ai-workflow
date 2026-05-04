@@ -89,7 +89,7 @@ jobs:
             -H "content-type: application/json" \
             -d '{
               "sender": { "email": "info@runningresults.net" },
-              "to": [{ "email": "chenyongchuang@hotmail.com" }],
+              "to": [{ "email": "yongchuangchen@gmail.com" }],
               "subject": "Tests Passed ✅",
               "htmlContent": "<p>All tests passed successfully.</p>"
             }'
@@ -103,7 +103,7 @@ jobs:
             -H "content-type: application/json" \
             -d '{
               "sender": { "email": "info@runningresults.net" },
-              "to": [{ "email": "chenyongchuang@hotmail.com" }],
+              "to": [{ "email": "yongchuangchen@gmail.com" }],
               "subject": "Tests Failed ❌",
               "htmlContent": "<p>Tests failed. Check logs in GitHub Actions.</p>"
             }'
