@@ -71,13 +71,15 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      # Notifications in GitHub Actions
+      # Notifications in Job Summary panel of the workflow run
       - name: Notify on test results
         run: |
           if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "Tests passed ✅"
+            echo "## Tests Passed ✅" >> $GITHUB_STEP_SUMMARY
+            echo "All unit tests succeeded." >> $GITHUB_STEP_SUMMARY
           else
-            echo "Tests failed ❌"
+            echo "## Tests Failed ❌" >> $GITHUB_STEP_SUMMARY
+            echo "Check logs for details." >> $GITHUB_STEP_SUMMARY
           fi
       # Email notification using Brevo when tests pass, BREVO_API_KEY is set in repository secrets
       - name: Send success email
