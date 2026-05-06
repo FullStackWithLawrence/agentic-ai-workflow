@@ -66,14 +66,38 @@ jobs:
   # This job will run after the Python unit tests and
   # is scaffolded to facilitate sending notifications based
   # on the test results.
+  # on the test results.
   notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
+    if: always() # Ensure this job runs regardless of the previous job's outcome
     steps:
-      - name: Notify on test results
-        run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+      - name: Python tests are passed
+        if: ${{ needs.python-unit-tests.result == 'success' }}
+        run: echo "Python unit tests are passed for build ${{ github.run_id }}. No notification needed."
+
+      - name: Python tests are failed
+        if: ${{ needs.python-unit-tests.result == 'failure' }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: GitHub Actions <${{ secrets.MAIL_USERNAME }}>
+          subject: "Python Unit Tests Failed — ${{ github.repository }}"
+          body: |
+            The Python unit test job failed in ${{ github.repository }}.
+
+            ─────────────────────────────────
+            Repository : ${{ github.repository }}
+            Branch     : ${{ github.ref_name }}
+            Triggered  : ${{ github.actor }}
+            Event      : ${{ github.event_name }}
+            Commit     : ${{ github.sha }}
+            ─────────────────────────────────
+
+            View the failed run:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
