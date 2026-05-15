@@ -134,7 +134,6 @@ runs:
         GITHUB_ACTIONS: "true"
         DEBUG_MODE: "true"
       run: |
-        exit 1
         make coverage
 
     - name: Upload coverage to Codecov
