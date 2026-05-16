@@ -14,6 +14,7 @@ SET_ME_PLEASE = "SET-ME-PLEASE"
 
 # General settings
 LOGGING_LEVEL = int(os.getenv("LOGGING_LEVEL", str(logging.INFO)))
+SUPPRESS_FUNCTION_LOGS = os.getenv("SUPPRESS_FUNCTION_LOGS", "false").lower() == "true"
 
 
 # LLM/OpenAI API settings

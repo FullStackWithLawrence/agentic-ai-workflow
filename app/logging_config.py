@@ -6,7 +6,16 @@ Centralized logging configuration for the Stackademy application.
 import logging
 import sys
 
-from app.settings import LOGGING_LEVEL
+from app.settings import LOGGING_LEVEL, SUPPRESS_FUNCTION_LOGS
+
+
+_SUPPRESS_PATTERNS = ("Updated messages", "Initial response", "Updated response", "OpenAI response", "Sending messages to OpenAI")
+
+
+class _SuppressFunctionResponseFilter(logging.Filter):
+    def filter(self, record):
+        msg = record.getMessage()
+        return not any(pattern in msg for pattern in _SUPPRESS_PATTERNS)
 
 
 def setup_logging(level: int = LOGGING_LEVEL) -> logging.Logger:
@@ -27,7 +36,13 @@ def setup_logging(level: int = LOGGING_LEVEL) -> logging.Logger:
             handlers=[logging.StreamHandler(sys.stdout)],  # This logs to console
         )
 
+    if SUPPRESS_FUNCTION_LOGS:
+        for handler in logging.getLogger().handlers:
+            handler.addFilter(_SuppressFunctionResponseFilter())
+
     logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("openai._base_client").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
 
     return logging.getLogger(__name__)
 
