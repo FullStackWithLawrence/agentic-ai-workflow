@@ -58,7 +58,7 @@ make docker-push    # push your Docker container to DockerHub. A DockerHub accou
 make docker-prune   # prune (permanently delete) all existing data in Docker: containers, images, cache.
 ```
 
-Docker debugging tips
+update: README
 
 ## Requirements
 
