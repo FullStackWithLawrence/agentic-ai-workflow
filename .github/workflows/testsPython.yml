@@ -35,6 +35,10 @@ on:
 env:
   python-version: "3.13"
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   # Job #1: Run Python unit tests
   #
@@ -68,12 +72,24 @@ jobs:
   # on the test results.
   notifications:
     needs: python-unit-tests
+    if: always() && needs.python-unit-tests.result == 'failure'
     runs-on: ubuntu-latest
     steps:
-      - name: Notify on test results
-        run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+      - name: Create failure notification issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Python unit tests failed: ${context.workflow}`,
+              body: [
+                'The Python unit test job failed.',
+                '',
+                `Workflow: ${context.workflow}`,
+                `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+                `Commit: ${context.sha}`,
+                `Triggered by: @${context.actor}`
+              ].join('\n'),
+              assignees: [context.actor]
+            });
