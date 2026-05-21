@@ -49,6 +49,7 @@ make docker-build    # run Docker compose to containerize your application
 make docker-test     # run all unit tests
 make docker-coverage # run coverage analysis
 make docker-run      # run the application as a Docker container
+make docker-debug    # not yet made, placeholder
 ```
 
 Other Docker commands
