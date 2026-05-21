@@ -28,7 +28,8 @@ on:
   push:
     branches: #
       - main #
-      - next # Trigger workflow on pushes to main and next
+      # - next # Trigger workflow on pushes to main and next
+      - EDBIDev
     paths: # branches, but only if Python files are changed
       - "**.py" #
 
@@ -67,6 +68,7 @@ jobs:
   # is scaffolded to facilitate sending notifications based
   # on the test results.
   notifications:
+    if: ${{ always() }}
     needs: python-unit-tests
     runs-on: ubuntu-latest
     steps:
@@ -77,3 +79,23 @@ jobs:
           else
             echo "failure notifications go here"
           fi
+  email-notification:
+    if: ${{ always() }}
+    needs: python-unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send mail to Team
+        uses: dawidd6/action-send-mail@v3
+        with:
+          # Your SMTP server details (e.g., Gmail or Outlook)
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{secrets.MAIL_USERNAME}}
+          password: ${{secrets.MAIL_PASSWORD}}
+          
+          subject: GitHub Actions Workflow Alert
+          # Add multiple recipients here, separated by commas
+          to: stan.tian@ubc.ca, stan.tian@gmail.com
+          
+          from: GitHub Actions Robot
+          body: The workflow for ${{github.repository}} has completed!
