@@ -72,6 +72,8 @@ make docker-prune   # prune (permanently delete) all existing data in Docker: co
 
 Documentation is available here: [Documentation](./doc/)
 
+GitHub Actions notification setup is available here: [Workflow Notifications](./.github/workflows/README.md)
+
 ## Support
 
 To get community support, go to the official [Issues Page](https://github.com/FullStackWithLawrence/agentic-ai-workflow/issues) for this project.

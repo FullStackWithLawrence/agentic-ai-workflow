@@ -22,6 +22,16 @@ name: Python Unit Tests
 
 on:
   workflow_dispatch: # Allows the workflow to be manually triggered from the GitHub Actions tab
+    inputs:
+      notification-mode:
+        description: "Notification behavior for this manual run"
+        required: false
+        type: choice
+        default: notify-on-failure
+        options:
+          - notify-on-failure
+          - dry-run
+          - test-notification
   pull_request: #
     paths: # Trigger workflow on pull requests, but
       - "**.py" # only if Python files are changed
@@ -67,13 +77,40 @@ jobs:
   # is scaffolded to facilitate sending notifications based
   # on the test results.
   notifications:
+    if: ${{ always() }}
     needs: python-unit-tests
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        id: checkout
+        uses: actions/checkout@v6
+
       - name: Notify on test results
-        run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+        continue-on-error: true
+        env:
+          PYTHON_UNIT_TEST_RESULT: ${{ needs.python-unit-tests.result }}
+          NOTIFICATION_TEST: ${{ github.event.inputs['notification-mode'] == 'test-notification' && 'true' || 'false' }}
+          NOTIFICATION_DRY_RUN: ${{ github.event.inputs['notification-mode'] == 'dry-run' && 'true' || 'false' }}
+          GITHUB_REPOSITORY_NAME: ${{ github.repository }}
+          GITHUB_WORKFLOW_NAME: ${{ github.workflow }}
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
+          SLACK_WEBHOOK_TARGETS_JSON: ${{ secrets.SLACK_WEBHOOK_TARGETS_JSON }}
+          DISCORD_WEBHOOK_TARGETS_JSON: ${{ secrets.DISCORD_WEBHOOK_TARGETS_JSON }}
+          TEAMS_WEBHOOK_URLS_JSON: ${{ secrets.TEAMS_WEBHOOK_URLS_JSON }}
+          MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
+          MAILGUN_API_BASE_URL: ${{ vars.MAILGUN_API_BASE_URL }}
+          MAILGUN_DOMAIN: ${{ vars.MAILGUN_DOMAIN }}
+          MAILGUN_FROM_EMAIL: ${{ secrets.MAILGUN_FROM_EMAIL }}
+          MAILGUN_TO_EMAILS_JSON: ${{ secrets.MAILGUN_TO_EMAILS_JSON }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM_PHONE: ${{ secrets.TWILIO_FROM_PHONE }}
+          TWILIO_MESSAGING_SERVICE_SID: ${{ secrets.TWILIO_MESSAGING_SERVICE_SID }}
+          TWILIO_TO_PHONES_JSON: ${{ secrets.TWILIO_TO_PHONES_JSON }}
+        run: python3 scripts/github_actions_notify.py
