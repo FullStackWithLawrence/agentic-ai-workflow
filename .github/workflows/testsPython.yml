@@ -20,6 +20,10 @@
 ###############################################################################
 name: Python Unit Tests
 
+permissions:
+  contents: read
+  issues: write
+
 on:
   workflow_dispatch: # Allows the workflow to be manually triggered from the GitHub Actions tab
   pull_request: #
@@ -68,12 +72,40 @@ jobs:
   # on the test results.
   notifications:
     needs: python-unit-tests
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
       - name: Notify on test results
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NOTIFY_USER: ${{ vars.NOTIFY_USER || github.actor }}
         run: |
+          echo "## Python Unit Test Result" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Result: ${{ needs.python-unit-tests.result }}" >> "$GITHUB_STEP_SUMMARY"
+
           if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
+            echo "Python unit tests passed. No failure notification needed."
+            echo "Python unit tests passed. No failure notification needed." >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "failure notifications go here"
+            echo "::error title=Python unit tests failed::The Python unit test job failed. Please inspect the workflow logs."
+
+            cat > issue_body.md <<EOF
+          The Python unit test job failed.
+
+          Repository: ${{ github.repository }}
+          Branch: ${{ github.ref_name }}
+          Commit: ${{ github.sha }}
+          Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          Please inspect the failed job logs.
+          EOF
+
+            gh issue create \
+              --repo "${{ github.repository }}" \
+              --title "Python unit tests failed in workflow run #${{ github.run_number }}" \
+              --body-file issue_body.md \
+              --assignee "$NOTIFY_USER"
+
+            echo "Failure notification issue created and assigned to @$NOTIFY_USER." >> "$GITHUB_STEP_SUMMARY"
           fi
