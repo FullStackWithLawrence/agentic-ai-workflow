@@ -92,3 +92,15 @@ For developers, please see:
 - and these [commit comment guidelines](./doc/SEMANTIC_VERSIONING.md) 😬😬😬 for managing CI rules for automated semantic releases.
 
 You can also contact [Lawrence McDaniel](https://lawrencemcdaniel.com/contact) directly.
+
+## Docker Instructions
+
+Build the image:
+```bash
+docker build -t agentic-demo .
+```
+
+Run the container:
+```bash
+docker run -it --rm agentic-demo python -m app.agent
+```
