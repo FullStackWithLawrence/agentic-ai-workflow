@@ -129,8 +129,8 @@ docker-coverage:
 		/bin/bash -c "python -m coverage run --source=app --omit='app/tests/*' -m unittest discover -s app/tests && python -m coverage report -m --omit='app/tests/*' && python -m coverage xml --omit='app/tests/*'"
 
 docker-prune:
-	@if [ "`docker ps -aq`" ]; then \
-		docker stop $(docker ps -aq); \
+	@if [ -n "$$(docker ps -aq)" ]; then \
+		docker stop $$(docker ps -aq); \
 	fi
 	@docker container prune -f
 	@docker image prune -af
