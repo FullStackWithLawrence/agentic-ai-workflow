@@ -92,3 +92,6 @@ For developers, please see:
 - and these [commit comment guidelines](./doc/SEMANTIC_VERSIONING.md) 😬😬😬 for managing CI rules for automated semantic releases.
 
 You can also contact [Lawrence McDaniel](https://lawrencemcdaniel.com/contact) directly.
+
+
+Change for demo: git commands on repo
