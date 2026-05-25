@@ -1,3 +1,6 @@
+# temp directory for type checks
+.mypy_cache/
+
 # my own homegrown file to store coverage report output from Docker.
 coverage.out
 
