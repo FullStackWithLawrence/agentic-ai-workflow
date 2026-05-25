@@ -67,13 +67,29 @@ jobs:
   # is scaffolded to facilitate sending notifications based
   # on the test results.
   notifications:
-    needs: python-unit-tests
+    needs: [python-unit-tests]
+    if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: Notify on test results
+      - name: Log test result
         run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+          echo "Test result: ${{ needs.python-unit-tests.result }}"
+
+      - name: Send failure email
+        if: needs.python-unit-tests.result == 'failure'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "FAILED: Python tests in ${{ github.repository }}"
+          to: simon.hua@dentistry.ubc.ca
+          from: GitHub Actions
+          body: |
+            The Python unit tests failed.
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Actor: ${{ github.actor }}
+            Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
