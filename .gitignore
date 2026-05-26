@@ -17,7 +17,7 @@ dist
 *.tfstate
 *.tfstate.*
 .terraform/
-.env
+#.env
 lambda_dist_pkg
 *.zip
 __pycache__
