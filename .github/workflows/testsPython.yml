@@ -64,16 +64,34 @@ jobs:
 
   # Job #2: Notifications (Mini-capstone assignment)
   # This job will run after the Python unit tests and
-  # is scaffolded to facilitate sending notifications based
-  # on the test results.
+  # sends an email notification when tests fail.
   notifications:
     needs: python-unit-tests
+    if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: Notify on test results
-        run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+      - name: Send failure notification email
+        if: needs.python-unit-tests.result == 'failure'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "❌ Python Unit Tests Failed - ${{ github.repository }}"
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: ${{ secrets.EMAIL_USERNAME }}
+          body: |
+            The Python Unit Tests workflow has failed.
+
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+            Workflow Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Please review the failing tests and fix any issues.
+
+      - name: Log success
+        if: needs.python-unit-tests.result == 'success'
+        run: echo "✅ All Python unit tests passed successfully."
