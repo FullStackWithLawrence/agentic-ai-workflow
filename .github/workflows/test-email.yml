@@ -1,0 +1,22 @@
+name: Test Email Notification
+
+on:
+  workflow_dispatch:  # run manually from Actions tab
+
+jobs:
+  send-test-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send test email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "GitHub Actions Email Test"
+          to: ${{ secrets.NOTIFY_EMAIL_TO }}
+          from: ${{ secrets.NOTIFY_EMAIL_FROM }}
+          body: |
+            This is a test email sent from GitHub Actions.
+            If you received this, your SMTP settings are correct.

@@ -67,13 +67,46 @@ jobs:
   # is scaffolded to facilitate sending notifications based
   # on the test results.
   notifications:
-    needs: python-unit-tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notify on test results
-        run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+      needs: python-unit-tests
+      if: always()
+      runs-on: ubuntu-latest
+      steps:
+        - name: Send success email
+          if: ${{ needs.python-unit-tests.result == 'success' }}
+          uses: dawidd6/action-send-mail@v3
+          with:
+            server_address: ${{ secrets.SMTP_SERVER }}
+            server_port: ${{ secrets.SMTP_PORT }}
+            username: ${{ secrets.SMTP_USERNAME }}
+            password: ${{ secrets.SMTP_PASSWORD }}
+            subject: "Python Unit Tests Passed"
+            to: ${{ secrets.NOTIFY_EMAIL_TO }}
+            from: ${{ secrets.NOTIFY_EMAIL_FROM }}
+            body: |
+              🎉 Python unit tests succeeded!
+    
+              Workflow: Python Unit Tests
+              Status: SUCCESS
+              Branch: ${{ github.ref }}
+              Commit: ${{ github.sha }}
+    
+        - name: Send failure email
+          if: ${{ needs.python-unit-tests.result != 'success' }}
+          uses: dawidd6/action-send-mail@v3
+          with:
+            server_address: ${{ secrets.SMTP_SERVER }}
+            server_port: ${{ secrets.SMTP_PORT }}
+            username: ${{ secrets.SMTP_USERNAME }}
+            password: ${{ secrets.SMTP_PASSWORD }}
+            subject: "Python Unit Tests FAILED"
+            to: ${{ secrets.NOTIFY_EMAIL_TO }}
+            from: ${{ secrets.NOTIFY_EMAIL_FROM }}
+            body: |
+              ❌ Python unit tests failed.
+    
+              Workflow: Python Unit Tests
+              Status: FAILURE
+              Branch: ${{ github.ref }}
+              Commit: ${{ github.sha }}
+    
+              Check the GitHub Actions logs for details.
