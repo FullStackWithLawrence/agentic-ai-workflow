@@ -58,6 +58,8 @@ make docker-push    # push your Docker container to DockerHub. A DockerHub accou
 make docker-prune   # prune (permanently delete) all existing data in Docker: containers, images, cache.
 ```
 
+update: README
+
 ## Requirements
 
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). _pre-installed on Linux and macOS_
