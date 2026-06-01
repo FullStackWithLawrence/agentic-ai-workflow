@@ -1,26 +1,23 @@
-# Windows‑optimized Makefile (cmd.exe as shell)
+SHELL := /bin/bash
+export PATH := /usr/local/bin:$(PATH)
+export
 
-# Detect OS and set Python / venv activation / .env loading
 ifeq ($(OS),Windows_NT)
-	PYTHON := python.exe
-	ACTIVATE_VENV := call venv\Scripts\activate
-	LOAD_ENV := for /f "usebackq tokens=1,2 delims==" %%a in (".env") do set %%a=%%b
+    PYTHON := python.exe
+    ACTIVATE_VENV := venv\Scripts\activate
 else
-	PYTHON := python3.13
-	ACTIVATE_VENV := . venv/bin/activate
-	LOAD_ENV := set -a && . .env && set +a
+    PYTHON := python3.13
+    ACTIVATE_VENV := source venv/bin/activate
 endif
-
 PIP := $(PYTHON) -m pip
 
 ifneq ("$(wildcard .env)","")
-	include .env
+    include .env
 else
-	$(shell cp .env.example .env)
+    $(shell cp .env.example .env)
 endif
 
-.PHONY: analyze pre-commit init init-dev lint tear-down test build release \
-		docker-build docker-run docker-test docker-coverage docker-push docker-prune
+.PHONY: analyze pre-commit init lint tear-down test build release
 
 # Default target executed when no arguments are given to make.
 all: help
@@ -74,43 +71,21 @@ lint:
 	flake8 ./app/
 	pylint ./app/**/*.py
 
-# ---------------------------------------------------------
-# tear down venv / node_modules (Windows + *nix)
-# ---------------------------------------------------------
-ifeq ($(OS),Windows_NT)
-	RM_VENV := if exist venv rmdir /S /Q venv
-	RM_NODE := if exist node_modules rmdir /S /Q node_modules
-	RM_PYCACHE := if exist app\__pycache__ rmdir /S /Q app\__pycache__
-	RM_LOCK := if exist package-lock.json del /F /Q package-lock.json
-else
-	RM_VENV := rm -rf venv
-	RM_NODE := rm -rf node_modules
-	RM_PYCACHE := rm -rf app/__pycache__
-	RM_LOCK := rm -f package-lock.json
-endif
-
 tear-down:
-	$(RM_VENV)
-	$(RM_NODE)
-	$(RM_PYCACHE)
-	$(RM_LOCK)
+	rm -rf venv node_modules app/__pycache__ package-lock.json
 
 docker-build:
 	docker build -t ${DOCKERHUB_USERNAME}/${REPO_NAME} . --build-arg ENVIRONMENT=${ENVIRONMENT}
 
-# ---------------------------------------------------------
-# Docker commands using .env (Windows: LOAD_ENV)
-# ---------------------------------------------------------
 docker-push:
-	$(LOAD_ENV) && \
+	source .env && \
 	docker tag ${DOCKERHUB_USERNAME}/${REPO_NAME} ${DOCKERHUB_USERNAME}/${REPO_NAME}:latest && \
 	echo "${DOCKERHUB_ACCESS_TOKEN}" | docker login --username=${DOCKERHUB_USERNAME} --password-stdin && \
 	docker push ${DOCKERHUB_USERNAME}/${REPO_NAME}:latest
 
 docker-run:
-	$(LOAD_ENV) && \
-	docker run -it \
-		-e OPENAI_API_KEY=${OPENAI_API_KEY} \
+	source .env && \
+	docker run -it -e OPENAI_API_KEY=${OPENAI_API_KEY} \
 		-e ENVIRONMENT=prod \
 		-e MYSQL_HOST=${MYSQL_HOST} \
 		-e MYSQL_PORT=${MYSQL_PORT} \
@@ -122,7 +97,7 @@ docker-run:
 		-e LLM_TOOL_CHOICE=${LLM_TOOL_CHOICE} ${DOCKERHUB_USERNAME}/${REPO_NAME}:latest
 
 docker-test:
-	$(LOAD_ENV) && \
+	source .env && \
 	docker run --rm \
 		-e OPENAI_API_KEY=${OPENAI_API_KEY} \
 		-e ENVIRONMENT=local \
@@ -138,7 +113,7 @@ docker-test:
 		python -m unittest discover -s app/
 
 docker-coverage:
-	$(LOAD_ENV) && \
+	source .env && \
 	docker run --rm \
 		-e OPENAI_API_KEY=${OPENAI_API_KEY} \
 		-e ENVIRONMENT=local \
@@ -154,26 +129,29 @@ docker-coverage:
 		/bin/bash -c "python -m coverage run --source=app --omit='app/tests/*' -m unittest discover -s app/tests && python -m coverage report -m --omit='app/tests/*' && python -m coverage xml --omit='app/tests/*'"
 
 docker-prune:
-	docker container prune -f
-	docker image prune -af
-	docker builder prune -af
+	@if [ -n "$$(docker ps -aq)" ]; then \
+		docker stop $$(docker ps -aq); \
+	fi
+	@docker container prune -f
+	@docker image prune -af
+	@docker builder prune -af
 
 ######################
 # HELP
 ######################
 help:
 	@echo '===================================================================='
-	@echo 'analyze          - generate code analysis report'
-	@echo 'release          - force a new GitHub release'
-	@echo 'init         - create a Python virtual environment and install prod dependencies'
-	@echo 'init-dev     - install dev dependencies'
-	@echo 'test         - run Python unit tests'
-	@echo 'lint         - run Python linting'
-	@echo 'tear-down        - destroy the Python virtual environment'
-	@echo 'pre-commit       - install and run pre-commit hooks'
-	@echo 'docker-build     - build the Docker image'
-	@echo 'docker-run       - run the Docker image'
-	@echo 'docker-test      - run the Docker image for testing'
-	@echo 'docker-coverage      - run the Docker image for testing + coverage report'
-	@echo 'docker-push      - push the Docker image to DockerHub'
-	@echo 'docker-prune     - Docker tear-down containers/images/builders'
+	@echo 'analyze			- generate code analysis report'
+	@echo 'release			- force a new GitHub release'
+	@echo 'init			- create a Python virtual environment and install prod dependencies'
+	@echo 'init-dev		- install dev dependencies'
+	@echo 'test			- run Python unit tests'
+	@echo 'lint			- run Python linting'
+	@echo 'tear-down		- destroy the Python virtual environment'
+	@echo 'pre-commit		- install and run pre-commit hooks'
+	@echo 'docker-build		- build the Docker image'
+	@echo 'docker-run		- run the Docker image'
+	@echo 'docker-test		- run the Docker image for testing'
+	@echo 'docker-coverage		- run the Docker image for testing + coverage report'
+	@echo 'docker-push		- push the Docker image to DockerHub'
+	@echo 'docker-prune		- Docker tear-down containers/images/builders'
