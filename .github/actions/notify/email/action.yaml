@@ -1,0 +1,76 @@
+###############################################################################
+# GitHub Action: Send Email Notification via SMTP
+#
+# Purpose:
+#   Sends email notifications using configurable SMTP providers with retry logic.
+#   All email configuration (credentials, addresses) is handled internally.
+#
+# Supported Providers:
+#   - gmail: smtp.gmail.com:587 (TLS) - requires Gmail App Password
+#   - outlook: smtp-mail.outlook.com:587 (TLS) - requires Outlook password
+#   - yahoo: smtp.mail.yahoo.com:587 (TLS) - requires Yahoo App Password
+#   - sendgrid: smtp.sendgrid.net:587 (TLS) - requires SendGrid API key as password
+#   - smtp2go: mail.smtp2go.com:587 (TLS) - requires SMTP2GO SMTP username/password
+#   - mailgun: smtp.mailgun.org:587 (TLS) - requires Mailgun SMTP password
+#   - custom: Custom SMTP server with configurable host/port/auth
+#
+# Required Secrets (configured at repository level):
+#   - SMTP_PROVIDER: SMTP provider to use (default: sendgrid)
+#   - SMTP_USERNAME: SMTP username (email address for most providers)
+#   - SMTP_PASSWORD: SMTP password/App Password/API key
+#   - NOTIFICATION_EMAIL: Recipient email address
+#   - FROM_EMAIL: Sender email address
+#   - SMTP_HOST: Custom SMTP host (only needed for provider=custom)
+#   - SMTP_PORT: Custom SMTP port (only needed for provider=custom, default 587)
+#
+# Required Inputs (passed from workflow):
+#   - subject: Email subject line
+#   - body: Email message body (supports multi-line)
+#
+# Usage Example:
+#   uses: ./.github/actions/notify/email
+#   with:
+#     subject: "Test Results"
+#     body: "All tests passed successfully!"
+###############################################################################
+
+name: "Send Email Notification"
+description: "Reusable email notification via configurable SMTP providers"
+
+inputs:
+  subject:
+    description: "Email subject line"
+    required: true
+  body:
+    description: "Email message body"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Send email via SMTP (with retry)
+      shell: bash
+      run: |
+        SMTP_PORT="${{ secrets.SMTP_PORT }}"
+        if [ -z "$SMTP_PORT" ]; then SMTP_PORT="587"; fi
+        
+        for i in 1 2 3; do
+          if swaks --to "${{ secrets.NOTIFICATION_EMAIL }}" \
+                  --from "${{ secrets.FROM_EMAIL }}" \
+                  --server "${{ secrets.SMTP_HOST }}" \
+                  --port "${{ secrets.SMTP_PORT }}" \
+                  --tls \
+                  --auth-user "${{ secrets.SMTP_USERNAME }}" \
+                  --auth-password "${{ secrets.SMTP_PASSWORD }}" \
+                  --header "Subject: ${{ inputs.subject }}" \
+                  --body "${{ inputs.body }}"; then
+            echo "Email sent successfully"
+            exit 0
+          fi
+
+          echo "Attempt $i failed. Retrying..."
+          sleep 5
+        done
+
+        echo "Failed to send email after retries"
+        exit 1

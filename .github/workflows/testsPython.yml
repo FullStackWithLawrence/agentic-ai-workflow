@@ -15,7 +15,7 @@
 #   3. Run unit tests and report results
 #
 # Notes:
-#   - secrets are set in https://github.com/smarter-sh/smarter/settings/secrets/actions
+#   - secrets are set in https://github.com/FullStackWithLawrence/agentic-ai-workflow/settings/secrets/actions
 #   - Integrates with Codecov for coverage reporting
 ###############################################################################
 name: Python Unit Tests
@@ -69,11 +69,31 @@ jobs:
   notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
+
     steps:
-      - name: Notify on test results
+      - name: Set notification content
+        id: vars
         run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
+          STATUS="${{ needs.python-unit-tests.result }}"
+
+          if [ "$STATUS" = "success" ]; then
+            echo "subject=TEST SUCCESS: Python Unit Tests Passed" >> $GITHUB_OUTPUT
+            echo "body=All tests passed successfully." >> $GITHUB_OUTPUT
           else
-            echo "failure notifications go here"
+            echo "subject=TEST FAILURE: Python Unit Tests Failed" >> $GITHUB_OUTPUT
+            echo "body=Tests failed. Check logs." >> $GITHUB_OUTPUT
           fi
+
+      - name: Send notification email
+        if: always()
+        uses: ./.github/actions/notify/email
+        with:
+          subject: ${{ steps.vars.outputs.subject }}
+          body: |
+            ${{ steps.vars.outputs.body }}
+
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Workflow: ${{ github.workflow }}
+            Run: ${{ github.run_id }}
