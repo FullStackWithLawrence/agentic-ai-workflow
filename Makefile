@@ -136,9 +136,9 @@ docker-prune:
 	@docker image prune -af
 	@docker builder prune -af
 
-######################
+#######################
 # HELP
-######################
+#######################
 help:
 	@echo '===================================================================='
 	@echo 'analyze			- generate code analysis report'
