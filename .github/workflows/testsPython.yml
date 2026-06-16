@@ -68,12 +68,13 @@ jobs:
   # on the test results.
   notifications:
     needs: python-unit-tests
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
       - name: Notify on test results
         run: |
           if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
+            echo "✅ Tests passed successfully."
           else
-            echo "failure notifications go here"
+            echo "❌ CI/CD Alert: Python tests failed. Please review the logs."
           fi
