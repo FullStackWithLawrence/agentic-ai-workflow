@@ -73,7 +73,18 @@ jobs:
       - name: Notify on test results
         run: |
           if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
+            echo "✅ Tests passed! No action required."
           else
-            echo "failure notifications go here"
+            uses: dawidd6/action-send-mail@v3
+            with:
+              server_address: smtp.gmail.com
+              server_port: 465
+              username: ${{ secrets.EMAIL_USERNAME }}
+              password: ${{ secrets.EMAIL_PASSWORD }}
+              subject: "❌ CRITICAL: Python Unit Tests failed on ${{ github.repository }}"
+              to: ${{ secrets.EMAILS_TO_NOTIFY }}
+              from: GitHub Actions
+              body: |
+                Branch: ${{ github.ref_name }}
+                Triggered by: ${{ github.actor }}
           fi
