@@ -1,0 +1,33 @@
+{
+  "model": "gpt-4-turbo",
+  "temperature": 0.5,
+  "max_tokens": 1024,
+  "messages": [
+    { "role": "system", "content": "You are a helpful travel assistant." },
+    { "role": "user", "content": "I am traveling to Vancouver tomorrow. What should I pack?" }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_weather",
+        "description": "Retrieve the current weather for a given location.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "location": {
+              "type": "string",
+              "description": "Name of the city"
+            },
+            "unit": {
+              "type": "string",
+              "enum": ["celsius", "fahrenheit"]
+            }
+          },
+          "required": ["location"]
+        }
+      }
+    }
+  ],
+  "tool_choice": "auto"
+}

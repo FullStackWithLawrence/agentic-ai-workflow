@@ -36,12 +36,8 @@ env:
   python-version: "3.13"
 
 jobs:
-  # Job #1: Run Python unit tests
-  #
-  # This job will run on an Ubuntu runner and execute the Python
-  # tests by using a custom action located in ./.github/actions/tests/python.
   python-unit-tests:
-    runs-on: ubuntu-latest # the runner (remote machine) will use Ubuntu OS
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         id: checkout
@@ -62,18 +58,29 @@ jobs:
           mysql-charset: "${{ secrets.MYSQL_CHARSET }}"
           codecov-token: "${{ secrets.CODECOV_TOKEN }}"
 
-  # Job #2: Notifications (Mini-capstone assignment)
-  # This job will run after the Python unit tests and
-  # is scaffolded to facilitate sending notifications based
-  # on the test results.
+  jobs:
+  python-unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      # your test steps here...
+
   notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
+
     steps:
       - name: Notify on test results
         run: |
           if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
+            echo "TESTS PASSED"
+            echo "Repository: ${{ github.repository }}"
+            echo "Triggered by: ${{ github.actor }}"
+            echo "Commit: ${{ github.sha }}"
+            echo "Check logs: https://github.com/${{ github.repository }}/actions"
           else
-            echo "failure notifications go here"
+            echo "TESTS FAILED"
+            echo "Repository: ${{ github.repository }}"
+            echo "Triggered by: ${{ github.actor }}"
+            echo "Commit: ${{ github.sha }}"
+            echo "Check logs: https://github.com/${{ github.repository }}/actions"
           fi
