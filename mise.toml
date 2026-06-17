@@ -1,0 +1,63 @@
+[tools]
+python = "3.13"
+
+[env]
+_.python.venv = { path = ".venv", create = true }
+
+[tasks.init]
+description = "Install production dependencies"
+run = [
+    "pip install --upgrade pip",
+    "pip install -r requirements/base.txt",
+]
+
+[tasks.init-dev]
+description = "Install all dependencies including dev tools"
+depends = ["init"]
+run = [
+    "npm install",
+    "pip install -r requirements/local.txt",
+    "pre-commit install",
+]
+
+[tasks.test]
+description = "Run Python unit tests"
+run = "python -m unittest discover -s app/"
+
+[tasks.coverage]
+description = "Run tests with coverage report"
+run = [
+    "python -m coverage run --source=app --omit='app/tests/*' -m unittest discover -s app/tests",
+    "python -m coverage report -m --omit='app/tests/*'",
+    "python -m coverage xml --omit='app/tests/*'",
+]
+
+[tasks.lint]
+description = "Run all linters"
+run = [
+    "isort .",
+    "pre-commit run --all-files",
+    "black .",
+    "flake8 ./app/",
+    "pylint ./app/**/*.py",
+]
+
+[tasks.pre-commit]
+description = "Install and run pre-commit hooks"
+run = [
+    "pre-commit install",
+    "pre-commit autoupdate",
+    "pre-commit run --all-files",
+]
+
+[tasks.tear-down]
+description = "Remove mise-managed virtual environment and build artifacts"
+run = "rm -rf .venv node_modules app/__pycache__ package-lock.json"
+
+[tasks.analyze]
+description = "Generate code analysis report"
+run = "cloc . --exclude-ext=svg,json,zip --vcs=git"
+
+[tasks.release]
+description = "Force a new GitHub release"
+run = "git commit -m 'fix: force a new release' --allow-empty && git push"
