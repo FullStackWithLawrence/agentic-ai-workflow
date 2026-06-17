@@ -34,6 +34,7 @@ on:
 
 env:
   python-version: "3.13"
+  NOTIFY_USER: santosi0
 
 jobs:
   # Job #1: Run Python unit tests
@@ -68,12 +69,25 @@ jobs:
   # on the test results.
   notifications:
     needs: python-unit-tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest    
+# Only run this job if the test job failed
+    if: needs.python-unit-tests.result == 'failure'
+
     steps:
-      - name: Notify on test results
-        run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+      - name: Create GitHub issue on test failure
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: "❌ Python Unit Tests Failed",
+            body: `@${process.env.NOTIFY_USER}
+            The Python unit tests failed.
+
+          • Workflow: ${context.workflow}
+          • Branch: ${context.ref}
+          • Commit: ${context.sha}
+              Please check the GitHub Actions logs for details.`
+            )
+              ''

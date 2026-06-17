@@ -4,10 +4,10 @@ export
 
 ifeq ($(OS),Windows_NT)
     PYTHON := python.exe
-    ACTIVATE_VENV := venv\Scripts\activate
+    ACTIVATE_VENV := venv/Scripts/activate
 else
     PYTHON := python3.13
-    ACTIVATE_VENV := source venv/bin/activate
+    ACTIVATE_VENV := source venv/Scripts/activate
 endif
 PIP := $(PYTHON) -m pip
 

@@ -1,0 +1,11 @@
+
+name: Debug Manual Run
+
+on:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Workflow runs"
