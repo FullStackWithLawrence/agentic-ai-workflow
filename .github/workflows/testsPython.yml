@@ -68,12 +68,20 @@ jobs:
   # on the test results.
   notifications:
     needs: python-unit-tests
+    if: always() #Added this line so that notification on failure will not be skipped by github actions
     runs-on: ubuntu-latest
     steps:
       - name: Notify on test results
         run: |
           if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
+            echo "Python unit tests passed for ${{ github.repository }}."
+            echo "Branch: ${{ github.ref_name }}"
+            echo "Commit: ${{ github.sha }}"
+            echo "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           else
-            echo "failure notifications go here"
+            echo "Python unit tests failed for ${{ github.repository }}."
+            echo "Branch: ${{ github.ref_name }}"
+            echo "Commit: ${{ github.sha }}"
+            echo "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "Please check the GitHub Actions logs for more details"
           fi
