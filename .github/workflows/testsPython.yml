@@ -70,10 +70,20 @@ jobs:
     needs: python-unit-tests
     runs-on: ubuntu-latest
     steps:
-      - name: Notify on test results
-        run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+      - name: Send email notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{secrets.EMAIL_USERNAME}}
+          password: ${{secrets.EMAIL_PASSWORD}}
+          to: ${{secrets.EMAIL_TO}}
+          from: GitHub Actions {{$secrets.EMAIL}}
+          subject: "Github Actions: {{github.repository}} ${{ needs.python-unit-tests.result }}"
+          body: |
+            Result: ${{job.status}}
+            Repo: ${{github.repository}}
+            Branch: ${{github.ref_name}}
+            Commit: ${{github.sha}} 
+
+
