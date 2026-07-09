@@ -66,14 +66,45 @@ jobs:
   # This job will run after the Python unit tests and
   # is scaffolded to facilitate sending notifications based
   # on the test results.
+  # notifications:
+  #   needs: python-unit-tests
+  #  runs-on: ubuntu-latest
+  # steps:
+  #   - name: Notify on test results
+  #     run: |
+  #       if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
+  #         echo "success notifications go here"
+  #       else
+  #         echo "failure notifications go here"
+  #       fi
+
+  # Job #2a: Notifications (Mini-capstone assignment solution)
+  # This job will run after the Python unit tests and
+  # is scaffolded to facilitate sending notifications based
+  # on the test results, especially the new *Failure notification.
   notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
+    if: always()  # ensures this job runs even if tests fail
+
     steps:
-      - name: Notify on test results
-        run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+      - name: Send email on failure
+        if: ${{ needs.python-unit-tests.result != 'success' }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "❌ Unit Tests Failed"
+          body: |
+            Your GitHub Actions workflow has failed.
+
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+
+            Check details here:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: GitHub Actions
