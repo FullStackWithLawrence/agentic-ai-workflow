@@ -68,12 +68,27 @@ jobs:
   # on the test results.
   notifications:
     needs: python-unit-tests
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Notify on test results
-        run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+        if: needs.python-unit-tests.result == 'failure'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{vars.NOTIFICATION_MAIL_SERVER_ADDRESS}}
+          server_port: $${{vars.NOTIFICATION_MAIL_PORT}}
+          username: ${{ vars.NOTIFICATION_MAIL_USERNAME }}
+          password: ${{ secrets.NOTIFICATION_MAIL_PASSWORD }}
+          
+          subject: "❌ CI Alert: Test Failure in ${{ github.repository }}"
+          body: |
+            The Python unit tests failed!
+            
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            
+            View Logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          to: ${{ vars.NOTIFICATION_TO_EMAIL }}
+          from: GitHub Actions Bot
