@@ -62,18 +62,21 @@ jobs:
           mysql-charset: "${{ secrets.MYSQL_CHARSET }}"
           codecov-token: "${{ secrets.CODECOV_TOKEN }}"
 
-  # Job #2: Notifications (Mini-capstone assignment)
+   # Job #2: Notifications (Mini-capstone assignment)
   # This job will run after the Python unit tests and
-  # is scaffolded to facilitate sending notifications based
-  # on the test results.
+  # sends a notification message when the Python unit test job fails.
   notifications:
     needs: python-unit-tests
+    if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: Notify on test results
+      - name: Notify on failed Python unit tests
+        if: ${{ needs.python-unit-tests.result == 'failure' }}
         run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+          echo "## Python Unit Test Failure Notification" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The Python unit test job failed." >> $GITHUB_STEP_SUMMARY
+          echo "Repository: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
