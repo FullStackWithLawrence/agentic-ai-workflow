@@ -69,11 +69,22 @@ jobs:
   notifications:
     needs: python-unit-tests
     runs-on: ubuntu-latest
+    # This line ensures the notification job runs even if the tests fail
+    if: always() 
     steps:
-      - name: Notify on test results
-        run: |
-          if [ "${{ needs.python-unit-tests.result }}" == "success" ]; then
-            echo "success notifications go here"
-          else
-            echo "failure notifications go here"
-          fi
+      - name: Send mail
+        if: needs.python-unit-tests.result == 'failure'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          # SMTP server details (Example for Gmail)
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "CI Build Failed: ${{ github.repository }}"
+          to: #your email here
+          from: GitHub Actions Workflow
+          body: |
+            The Python Unit Tests failed for the repository ${{ github.repository }}.
+            
+            Check the logs here: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
