@@ -39,7 +39,7 @@ mdurl>=0.1.2,<1.1.0
 mccabe>=0.7.0,<1.0.0
 
 # Additional itertools for Python; used by pytest and other testing frameworks for advanced iteration utilities.
-more-itertools>=10.8.0,<11.0.0
+more-itertools>=11.1.0,<12.0.0
 
 # Multi-value dictionary implementation; required by aiohttp and yarl for async web frameworks.
 multidict>=6.6.4,<7.0.0
