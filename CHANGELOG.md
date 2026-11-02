@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+
+
+## [0.1.7](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.6...v0.1.7) (2026-05-21)
+
+
+### Bug Fixes
+
+* automated build and tear down ([fa572e2](https://github.com/FullStackWithLawrence/agentic-ai-workflow/commit/fa572e289f2fa737f9c30659e8f62303971aef50))
+
+## [0.1.7](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.6...v0.1.7) (2026-05-21)
+
+
+### Bug Fixes
+
+* automated build and tear down ([fa572e2](https://github.com/FullStackWithLawrence/agentic-ai-workflow/commit/fa572e289f2fa737f9c30659e8f62303971aef50))
+
+# Change Log
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
+
 ## [0.1.6](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.5...v0.1.6) (2026-04-02)
 
 ### Bug Fixes

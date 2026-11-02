@@ -8,10 +8,6 @@ updates:
       - "dependencies"
       - "python"
       - "automated pr"
-    assignees:
-      - "lpm0073"
-    reviewers:
-      - "lpm0073"
     target-branch: "alpha"
   - package-ecosystem: "npm"
     directory: "/"
@@ -21,10 +17,6 @@ updates:
       - "automated pr"
     schedule:
       interval: "monthly"
-    assignees:
-      - "lpm0073"
-    reviewers:
-      - "lpm0073"
     target-branch: "alpha"
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -33,8 +25,4 @@ updates:
       - "automated pr"
     schedule:
       interval: "monthly"
-    assignees:
-      - "lpm0073"
-    reviewers:
-      - "lpm0073"
     target-branch: "alpha"
