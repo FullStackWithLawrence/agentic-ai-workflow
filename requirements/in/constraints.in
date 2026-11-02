@@ -51,7 +51,7 @@ pathspec>=0.12.1,<1.0.0
 platformdirs>=4.4.0,<5.0.0
 
 # Plugin management framework; required by pytest and tox for plugin support.
-pluggy>=1.6.0,<2.0.0
+pluggy>=1.7.0,<2.0.0
 
 # ASN.1 types and codecs; required by cryptography, pyasn1-modules, and some authentication libraries.
 pyasn1>=0.6.1,<1.0.0
