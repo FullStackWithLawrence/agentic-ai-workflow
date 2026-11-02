@@ -1,4 +1,4 @@
-# Agentic AI Workflow Example
+# Agentic AI Workflow Example by Salma Lalji e
 
 [![FullStackWithLawrence](https://a11ybadges.com/badge?text=FullStackWithLawrence&badgeColor=orange&logo=youtube&logoColor=282828)](https://www.youtube.com/@FullStackWithLawrence)<br>
 [![OpenAI](https://a11ybadges.com/badge?logo=openai)](https://platform.openai.com/)
@@ -15,6 +15,7 @@ A Python command-line application that demonstrates how to use OpenAI Api functi
 
 - how to use Docker Compose to containerize your project
 - how to leverage Pydantic for constructing complex JSON objects
+- Docker debugging
 
 Python code is [located here](./app/)
 
