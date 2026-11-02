@@ -60,7 +60,7 @@ pyasn1>=0.6.1,<1.0.0
 pyasn1-modules>=0.4.2,<1.0.0
 
 # Python style guide checker; required by flake8 for PEP8 compliance checks.
-pycodestyle>=2.14.0,<3.0.0
+pycodestyle>=2.15.0,<3.0.0
 
 # C parser in Python; required by cffi, which is used by cryptography and other C-extension libraries.
 pycparser>=2.23,<3.0.0
