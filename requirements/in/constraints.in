@@ -66,7 +66,7 @@ pycodestyle>=2.14.0,<3.0.0
 pycparser>=2.23,<3.0.0
 
 # Static code analysis for Python; used by flake8 for linting.
-pyflakes>=3.4.0,<4.0.0
+pyflakes>=4.1.0,<5.0.0
 
 # Parsing library for grammars; required by packaging, matplotlib, and other libraries for parsing expressions.
 pyparsing>=3.2.3,<4.0.0
