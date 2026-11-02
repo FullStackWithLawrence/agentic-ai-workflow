@@ -108,7 +108,7 @@ typing-extensions>=4.16.0,<5.0.0
 tzdata>=2025.2,<2026.0
 
 # HTTP client library; indirect dependency of requests and other networking libraries.
-urllib3>=2.5.0,<3.0.0
+urllib3>=2.8.0,<3.0.0
 
 # Data validation for strings, URLs, etc.; used by various web and data libraries.
 validators>=0.35.0,<1.0.0
