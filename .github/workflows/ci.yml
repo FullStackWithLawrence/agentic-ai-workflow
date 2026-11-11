@@ -7,10 +7,14 @@
 # - test: run the unit tests with coverage, and upload coverage.xml to Codecov.
 # - docker: build the Docker image, without pushing it.
 #
-# Secrets: OPENAI_API_KEY and the MYSQL_* settings, because app/settings.py
-# refuses to import without them, and a few tests call the OpenAI API. Every
-# test that touches MySQL mocks it. CODECOV_TOKEN for the coverage upload.
-# Pull requests from forks get no secrets, so their test job fails at import.
+# Secrets: OPENAI_API_KEY, because app/settings.py refuses to import without
+# it, and a few tests call the OpenAI API. CODECOV_TOKEN for the coverage
+# upload. Pull requests from forks get no secrets, so their test job fails at
+# import.
+#
+# The MYSQL_* settings aren't secrets: they are the read-only user of the
+# course database in the Docker container, as in .env.example. There is no
+# database in CI, and every test that touches MySQL mocks it.
 #------------------------------------------------------------------------------
 name: CI
 
@@ -21,16 +25,6 @@ on:
   workflow_call:
     secrets:
       OPENAI_API_KEY:
-        required: true
-      MYSQL_HOST:
-        required: true
-      MYSQL_PORT:
-        required: false
-      MYSQL_USER:
-        required: true
-      MYSQL_PASSWORD:
-        required: true
-      MYSQL_DATABASE:
         required: true
       CODECOV_TOKEN:
         required: false
@@ -68,11 +62,11 @@ jobs:
     env:
       ENVIRONMENT: local
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
-      MYSQL_PORT: ${{ secrets.MYSQL_PORT || '3306' }}
-      MYSQL_USER: ${{ secrets.MYSQL_USER }}
-      MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-      MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_PORT: "3306"
+      MYSQL_USER: smarter_test_user
+      MYSQL_PASSWORD: smarter_test_user
+      MYSQL_DATABASE: smarter_test_db
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
