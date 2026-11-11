@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 
 
+## [0.1.8-alpha.1](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.7...v0.1.8-alpha.1) (2026-11-11)
+
+
+### Bug Fixes
+
+* add real sql servr values ([078ac0d](https://github.com/FullStackWithLawrence/agentic-ai-workflow/commit/078ac0d59d113e29dd0fcbba76bc3976f81a6901))
+* **ci:** adopt the smarter-sh ci, release and lint standards ([54ce299](https://github.com/FullStackWithLawrence/agentic-ai-workflow/commit/54ce29957b11ca4a76b999e5bcbf754d436a9e76))
+* **docker:** run the course database in MariaDB in the app's container ([6b5349f](https://github.com/FullStackWithLawrence/agentic-ai-workflow/commit/6b5349f2d2c6837424ffb495e8c5680b2e35115a))
+
 ## [0.1.8](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.7...v0.1.8) (2026-11-11)
 
 
