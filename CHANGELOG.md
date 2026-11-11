@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 
 
+## [0.1.8-alpha.2](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.8-alpha.1...v0.1.8-alpha.2) (2026-11-11)
+
+
+### Bug Fixes
+
+* **prompt:** switch to gpt-6-luna and repair dev requirements ([d435734](https://github.com/FullStackWithLawrence/agentic-ai-workflow/commit/d43573409d3cbe8b68a54ceffb5e6e298af2c894))
+
 ## [0.1.8-alpha.1](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.7...v0.1.8-alpha.1) (2026-11-11)
 
 
