@@ -51,6 +51,23 @@ repos:
     hooks:
       - id: bandit
         args: ["-ll"]
+  # mypy checks the files named in pyproject.toml on every run, not only the
+  # changed files, so that a change can't break the types of a module it didn't
+  # touch. The hook's environment holds the app's dependencies and the PyMySQL
+  # stubs, so that it runs in CI too. Keep these pins equal to
+  # requirements/in/base.in and local.in: an unpinned openai installs a newer
+  # major version than the app runs, and mypy then checks the wrong api.
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v2.4.1
+    hooks:
+      - id: mypy
+        args: []
+        pass_filenames: false
+        additional_dependencies:
+          - "openai==2.8.1"
+          - "pydantic==2.12.2"
+          - "python-dotenv==1.2.1"
+          - "types-PyMySQL==1.2.4.20261111"
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:

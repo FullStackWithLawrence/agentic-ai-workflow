@@ -90,7 +90,7 @@ def handle_function_call(function_name: str, arguments: dict) -> str:
 
 def process_tool_calls(message: ChatCompletionMessage) -> list[str]:
     """Process tool calls in the messages list."""
-    functions_called = []
+    functions_called: list[str] = []
     if not isinstance(message, ChatCompletionMessage) or not message.tool_calls:
         return functions_called
     for tool_call in message.tool_calls:
