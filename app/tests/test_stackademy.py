@@ -6,6 +6,7 @@
 import unittest
 from unittest.mock import patch
 
+from app.const import MISSING
 from app.exceptions import ConfigurationException
 from app.logging_config import get_logger
 from app.stackademy import Stackademy
@@ -117,6 +118,66 @@ class TestStackademy(unittest.TestCase):
 
             self.assertEqual(len(courses), 0)
             logger.info("No results test passed")
+
+    def test_tool_factory_get_courses(self):
+        """Test the tool definition of get_courses."""
+        tool = self.app.tool_factory_get_courses()
+        self.assertEqual(tool["type"], "function")
+        self.assertEqual(tool["function"]["name"], "get_courses")
+        self.assertIn("max_cost", tool["function"]["parameters"]["properties"])
+
+    def test_tool_factory_register(self):
+        """Test the tool definition of register_course."""
+        tool = self.app.tool_factory_register()
+        self.assertEqual(tool["type"], "function")
+        self.assertEqual(tool["function"]["name"], "register_course")
+        self.assertEqual(
+            set(tool["function"]["parameters"]["required"]),
+            {"course_code", "email", "full_name"},
+        )
+
+    def test_verify_course_found(self):
+        """Test verify_course for a course in the catalogue."""
+        with patch.object(self.app.db, "execute_query", return_value=[{"course_code": "CS107"}]) as mock_query:
+            self.assertTrue(self.app.verify_course("CS107"))
+            mock_query.assert_called_once_with("SELECT * FROM courses WHERE course_code = %s", ("CS107",))
+
+    def test_verify_course_not_found(self):
+        """Test verify_course for a course that isn't in the catalogue."""
+        with patch.object(self.app.db, "execute_query", return_value=[]):
+            self.assertFalse(self.app.verify_course("XX999"))
+
+    def test_verify_course_database_error(self):
+        """Test verify_course when the database fails."""
+        with patch.object(self.app.db, "execute_query", side_effect=Exception("Database error")):
+            self.assertFalse(self.app.verify_course("CS107"))
+
+    def test_register_course_success(self):
+        """Test register_course, which cleans up its arguments before it verifies the course."""
+        with (
+            patch.object(self.app, "verify_course", return_value=True) as mock_verify,
+            patch("builtins.print") as mock_print,
+        ):
+            result = self.app.register_course(
+                course_code=" cs107 ", email=" John.Doe@Example.com ", full_name="john doe"
+            )
+
+        self.assertTrue(result)
+        mock_verify.assert_called_once_with("CS107")
+        mock_print.assert_called_once()
+        self.assertIn(
+            "Successfully registered John Doe (john.doe@example.com) for course CS107.", mock_print.call_args.args[0]
+        )
+
+    def test_register_course_unknown_course(self):
+        """Test register_course for a course that isn't in the catalogue."""
+        with patch.object(self.app, "verify_course", return_value=False):
+            self.assertFalse(self.app.register_course(course_code="XX999", email="a@b.com", full_name="A B"))
+
+    def test_register_course_missing_parameter(self):
+        """Test that register_course refuses a missing argument."""
+        with self.assertRaises(ConfigurationException):
+            self.app.register_course(course_code="CS107", email=MISSING, full_name="A B")
 
     def test_application_workflow_with_configuration_exception(self):
         """Test application workflow that raises ConfigurationException."""

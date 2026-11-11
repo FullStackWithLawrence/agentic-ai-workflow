@@ -34,6 +34,8 @@ relative_files = true
 [tool.coverage.report]
 show_missing = true
 skip_empty = true
+# python -m app.agent runs this line; the tests call main() directly.
+exclude_also = ['if __name__ == "__main__":']
 
 [tool.mypy]
 files = ["app", "scripts"]

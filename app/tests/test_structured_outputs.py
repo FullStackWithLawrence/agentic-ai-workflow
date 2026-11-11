@@ -135,6 +135,34 @@ class TestStructuredOutputs(unittest.TestCase):
         self.assertFalse(resp.success)
         self.assertIn("Registration failed", resp.message)
 
+    @patch("app.structured_outputs.stackademy_app.get_courses", return_value=[])
+    def test_get_courses_with_structured_output_invalid_area(self, mock_get_courses):
+        """Test that an unknown area of specialization is ignored rather than an error."""
+        resp = so.get_courses_with_structured_output(description="cooking", max_cost=200.0)
+        self.assertEqual(resp.total_count, 0)
+        mock_get_courses.assert_called_once_with(description=None, max_cost=200.0)
+
+    @patch("app.structured_outputs.stackademy_app.get_courses")
+    def test_get_courses_with_structured_output_pydantic_validation_error(self, mock_get_courses):
+        """Test that a max_cost that isn't a number is a validation error."""
+        resp = so.get_courses_with_structured_output(max_cost="cheap")  # type: ignore[arg-type]
+        self.assertEqual(resp.total_count, 0)
+        mock_get_courses.assert_not_called()
+
+    @patch("app.structured_outputs.stackademy_app.register_course")
+    def test_register_course_with_structured_output_pydantic_validation_error(self, mock_register):
+        """Test that a missing course code is a validation error."""
+        resp = so.register_course_with_structured_output(None, "a@b.com", "Test User")  # type: ignore[arg-type]
+        self.assertFalse(resp.success)
+        self.assertIn("Invalid parameters", resp.message)
+        mock_register.assert_not_called()
+
+    @patch("app.structured_outputs.logger.info", side_effect=RuntimeError("fail"))
+    def test_completion_with_structured_output_reraises(self, mock_info):
+        """Test that completion_with_structured_output logs an error and raises it again."""
+        with self.assertRaises(RuntimeError):
+            so.completion_with_structured_output("prompt", so.CourseSearchResponse)
+
     def test_completion_with_structured_output_beta(self):
         """Test that completion_with_structured_output handles beta feature stub."""
 

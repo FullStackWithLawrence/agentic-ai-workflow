@@ -68,3 +68,24 @@ class TestApplication(unittest.TestCase):
 
         mock_completion.side_effect = [(MockResponse(), []), (None, [])]
         agent.main(prompts=None)
+
+    @patch("app.agent.completion")
+    @patch("builtins.input", side_effect=["show me the courses", "CS107 please", "exit"])
+    def test_main_register_then_exit(self, mock_input, mock_completion):
+        """Test a conversation that lists courses, registers, and then exits."""
+
+        class MockMessage:
+            content = "Done."
+
+        class MockResponse:
+            choices = [type("obj", (), {"message": MockMessage})]
+
+        mock_completion.side_effect = [
+            (MockResponse(), ["get_courses"]),
+            (MockResponse(), ["register_course"]),
+        ]
+        agent.main(prompts=None)
+
+        self.assertEqual(mock_completion.call_count, 2)
+        self.assertEqual(mock_input.call_args_list[1].args[0], "Would you like to register for a course? ")
+        self.assertEqual(mock_input.call_args_list[2].args[0], "Can I help you with anything else? ")
