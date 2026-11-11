@@ -19,7 +19,7 @@ spec:
     appWelcomeMessage: Multi-LLM Workflow
     customDomain: null
     defaultMaxTokens: 4096
-    defaultModel: gpt-4o-mini
+    defaultModel: gpt-6-luna
     defaultSystemRole:
       You are part of a multi-step automated workflow. You receive input from a previous unit.
       Valid inputs are RED, BLUE, or GREEN. You should pass these to the tool provided to you.

@@ -19,7 +19,7 @@ spec:
     appWelcomeMessage: Multi-LLM Workflow
     customDomain: null
     defaultMaxTokens: 4096
-    defaultModel: gpt-4o-mini
+    defaultModel: gpt-6-luna
     defaultSystemRole:
       You are part of an automated workflow unit. You receive one of three colors in
       Spanish, input from a previous workflow unit and you must respond with one of three values.

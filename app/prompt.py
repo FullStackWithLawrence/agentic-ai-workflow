@@ -152,7 +152,10 @@ def completion(prompt: str) -> tuple[ChatCompletion | None, list[str]]:
                 tools=tools,
                 tool_choice=tool_choice,
                 temperature=settings.OPENAI_API_TEMPERATURE,
-                max_tokens=settings.OPENAI_API_MAX_TOKENS,
+                max_completion_tokens=settings.OPENAI_API_MAX_TOKENS,
+                # Reasoning models only accept function tools in Chat Completions
+                # when reasoning is turned off.
+                reasoning_effort="none",
             )
             logger.debug("OpenAI response: %s", dump_json_colored(response.model_dump(), "green"))
             return response

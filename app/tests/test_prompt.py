@@ -10,7 +10,7 @@ import httpx
 import openai
 from openai.types.chat import ChatCompletion
 
-from app import prompt
+from app import prompt, settings
 
 
 class DummyResponse:
@@ -35,7 +35,7 @@ def make_completion(content: str | None, tool_calls: list[dict] | None = None) -
             "id": "chatcmpl-test",
             "object": "chat.completion",
             "created": 0,
-            "model": "gpt-4o-mini",
+            "model": "gpt-6-luna",
             "choices": [
                 {
                     "index": 0,
@@ -115,6 +115,9 @@ class TestPrompt(unittest.TestCase):
         second_call = mock_create.call_args_list[1].kwargs
         self.assertEqual(len(second_call["tools"]), 2)
         self.assertEqual(second_call["tool_choice"], "auto")
+        # Reasoning models need these instead of max_tokens and default reasoning.
+        self.assertEqual(second_call["max_completion_tokens"], settings.OPENAI_API_MAX_TOKENS)
+        self.assertEqual(second_call["reasoning_effort"], "none")
 
     def test_completion_stops_on_goodbye(self):
         """Test that completion stops at "Goodbye!" even when the model also calls a tool."""

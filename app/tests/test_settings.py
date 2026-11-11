@@ -38,7 +38,7 @@ class TestSettings(unittest.TestCase):
         self.assertEqual(settings.MYSQL_HOST, "127.0.0.1")
         self.assertEqual(settings.MYSQL_PORT, 3306)
         self.assertEqual(settings.MYSQL_CHARSET, "utf8mb4")
-        self.assertEqual(settings.OPENAI_API_MODEL, "gpt-4o-mini")
+        self.assertEqual(settings.OPENAI_API_MODEL, "gpt-6-luna")
 
     def test_missing_mysql_setting(self):
         """Test that a missing MySQL setting stops the app."""
