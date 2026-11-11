@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 
 
+## [0.1.9](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.8...v0.1.9) (2026-11-11)
+
+
+### Bug Fixes
+
+* **docker:** run the course database in MariaDB in the app's container ([1319ca9](https://github.com/FullStackWithLawrence/agentic-ai-workflow/commit/1319ca9f6aa44efd9bde80d8f8f1f114922576a5))
+
 ## [0.1.8](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.7...v0.1.8) (2026-11-11)
 
 
