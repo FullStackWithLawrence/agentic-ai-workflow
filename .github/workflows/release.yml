@@ -42,11 +42,6 @@ jobs:
     uses: ./.github/workflows/ci.yml
     secrets:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
-      MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
-      MYSQL_USER: ${{ secrets.MYSQL_USER }}
-      MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-      MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   release:
