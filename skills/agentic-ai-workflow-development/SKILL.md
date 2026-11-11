@@ -21,11 +21,20 @@ to `completion()` in `app/prompt.py`, which:
    returns the response plus the names of the functions called.
 
 `agent.py` uses those names to choose the next prompt, and stops on
-"Goodbye!" or an exit phrase. `Stackademy` reads and writes MySQL through
+"Goodbye!" or an exit phrase. `Stackademy` reads MySQL through
 `DatabaseConnection` (`app/database.py`). `app/settings.py` reads `.env`
 at import time and raises `ConfigurationException` if the OpenAI key or a
 MySQL setting is missing, so importing anything under `app` needs a complete
 `.env`.
+
+Everything runs in one Docker container, `agentic-ai-workflow`, built from
+the `Dockerfile`: Python, the app, and a MariaDB server. `make docker-init`
+builds the image, (re)creates the container, and runs
+`scripts/create-course-database.sh` (a copy of the one in
+smarter-sh/stackademy), which loads `smarter_test_db` and its 48 courses and
+creates the read-only user `smarter_test_user`. The app connects to it at
+`127.0.0.1:3306`, inside the container. The container mounts `app/` and
+`pyproject.toml`, so code changes need no rebuild.
 
 ## Rules
 
@@ -48,11 +57,14 @@ the pre-commit hooks are the lint standard, and the repository is public.
 ## Testing
 
 ```bash
-source venv/bin/activate
-make test                                   # all tests, about 10 seconds
-python -m unittest app.tests.test_prompt    # one module
-make coverage                               # with a coverage report
+make test                                   # all tests in the container, about 15 seconds
+make coverage                               # with a coverage report, and coverage.xml
+docker exec -e OPENAI_API_KEY -e MYSQL_HOST=127.0.0.1 -e MYSQL_USER=smarter_test_user \
+  -e MYSQL_PASSWORD=smarter_test_user -e MYSQL_DATABASE=smarter_test_db \
+  agentic-ai-workflow python -m unittest app.tests.test_prompt    # one module
 ```
+
+Coverage is 100%; keep it at 97% or more.
 
 - Mock the database: `patch("app.database.pymysql.connect")`, or
   `patch.object(self.app.db, "execute_query", return_value=...)`. Look at

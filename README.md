@@ -10,9 +10,9 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![hack.d Lawrence McDaniel](https://img.shields.io/badge/hack.d-Lawrence%20McDaniel-orange.svg)](https://lawrencemcdaniel.com)
 
-A Python command-line application that demonstrates how to use OpenAI Api function calling to drive an automated agentic workflow. Additionally, this repo demonstrates
+A Python command-line application that demonstrates how to use OpenAI Api function calling to drive an automated agentic workflow. The app looks up courses in a MariaDB database and registers students for them. Additionally, this repo demonstrates
 
-- how to use Docker Compose to containerize your project
+- how to use Docker to containerize your project, including its database
 - how to leverage Pydantic for constructing complex JSON objects
 - Docker debugging
 
@@ -22,33 +22,53 @@ Python code is [located here](./app/)
 
 ## Quick Start
 
-1. Setup the application
+The app and its database run together in one Docker container, so Docker is the only thing you need to install besides git and make.
+
+1. Clone the repository
 
 ```console
 git clone https://github.com/FullStackWithLawrence/agentic-ai-workflow.git
 cd agentic-ai-workflow
-make init    # create a virtual environment
 ```
 
-2. Configure OpenAI API. Find and open the file `.env` in the root folder of the project. Add your OpenAI API key, save and close the file. See [OpenAI API Getting Started](./doc/OPENAI_API_GETTING_STARTED_GUIDE.md) for detailed setup instructions.
+2. Configure OpenAI API. Run `make` once to create the file `.env` in the root folder of the project, from `.env.example`. Open `.env`, add your OpenAI API key, save and close the file. See [OpenAI API Getting Started](./doc/OPENAI_API_GETTING_STARTED_GUIDE.md) for detailed setup instructions.
 
-3. Run the application
+3. Build the Docker image, start the container, and create the course database
 
 ```console
-make run
+make docker-init
 ```
 
-## OPTIONAL: Docker
-
-This application can also run as a Docker container.
+4. Run the application
 
 ```console
-make                 # initializes a .env file for OPENAI_API_KEY and DOCKERHUB_ACCESS_TOKEN
-make docker-build    # run Docker compose to containerize your application
-make docker-test     # run all unit tests
-make docker-coverage # run coverage analysis
-make docker-run      # run the application as a Docker container
+make docker-run
 ```
+
+## The course database
+
+The Docker image includes a [MariaDB](https://mariadb.org/) server. `make docker-init` creates Stackademy's course catalogue in it, the database `smarter_test_db` with its 48 courses, using [scripts/create-course-database.sh](./scripts/create-course-database.sh) and [scripts/smarter_test_db.sql](./scripts/smarter_test_db.sql). These are copies of the same files in [smarter-sh/stackademy](https://github.com/smarter-sh/stackademy), which create the same database for the [Smarter](https://smarter.sh) platform.
+
+The script also creates the read-only user `smarter_test_user`, whose password is its name. The app connects as that user to MariaDB at `127.0.0.1:3306` inside the container, which is what the `MYSQL_*` settings in `.env.example` say. Run `make docker-init` again at any time to reset the database.
+
+To look around in the database yourself:
+
+```console
+docker exec -it agentic-ai-workflow mariadb smarter_test_db
+```
+
+## Docker commands
+
+```console
+make docker-init     # build the image, start the container, and create the course database
+make docker-run      # run the application in the container
+make docker-test     # run all unit tests in the container (also: make test)
+make docker-coverage # run the unit tests with a coverage report, and copy out coverage.xml (also: make coverage)
+make docker-start    # start the container again, e.g. after you restart Docker
+make docker-build    # build the Docker image only
+```
+
+The container mounts the [app](./app/) folder, so your code changes reach it without a rebuild. Run `make docker-init` again after you change the `Dockerfile` or the requirements.
 
 Other Docker commands
 
@@ -63,9 +83,8 @@ make docker-prune   # prune (permanently delete) all existing data in Docker: co
 - [make](https://gnuwin32.sourceforge.net/packages/make.htm). _pre-installed on Linux and macOS._
 - [OpenAI platform API key](https://platform.openai.com/).
   _If you're new to OpenAI API then see [How to Get an OpenAI API Key](./doc/OPENAI_API_GETTING_STARTED_GUIDE.md)_
-- [Python 3.13](https://www.python.org/downloads/): for creating virtual environment.
 - [Docker](https://docs.docker.com/): the Docker run-time environment for your operating system. Can be installed as a desktop application or as a service (daemon)
-- [Docker Compose](https://docs.docker.com/compose/install/): used to create your production container.
+- [pre-commit](https://pre-commit.com/): _contributors only_, for `make lint`. For example, `pipx install pre-commit` or `brew install pre-commit`.
 
 ## Documentation
 

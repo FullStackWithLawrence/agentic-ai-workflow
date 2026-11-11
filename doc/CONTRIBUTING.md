@@ -27,13 +27,12 @@ A typical pull request will look like the following:
 
 This project uses pre-commit as a first-pass automated code review / QC process. pre-commit runs a multitude of utilities and checks for code formatting, linting, syntax checking, and ensuring that you don't accidentally push something to GitHub which you'd later regret. Broadly speaking, these checks are aimed at minimizing the extent of commits that contain various kinds of defects and stylistic imperfections that don't belong on the main branch of the project.
 
-Note that many of the pre-commit commands are actually executed by Python which in turn is calling pip-installed packages listed in ./requirements/local.txt located in the root of the repo. It therefore is important that you first create the Python virtual environment using `make api-init`. It also is a good idea to do a complete 'dry run' of pre-commit, to ensure that your developer environment is correctly setup:
+Note that many of the pre-commit commands are actually executed by Python which in turn is calling pip-installed packages listed in ./requirements/local.txt located in the root of the repo. pre-commit installs each hook's own environment, so you only need pre-commit itself on your PATH, for example from `pipx install pre-commit` or `brew install pre-commit`. It is a good idea to do a complete 'dry run' of pre-commit, to ensure that your developer environment is correctly setup:
 
 ```console
 git pull
-make api-init
-pre-commit autoupdate
-pre-commit run --all-files
+make pre-commit-init
+make lint
 ```
 
 Output should look similar to the following:
@@ -54,10 +53,14 @@ This project includes a single Python project located ./app.
 
 Note that this project leverages Dependabot for managing version numbers of all Python packages that are used in this project, regardless of where and how. Versions should always be up to date at the moment that you clone the repo. It therefore should never be necessary for you to manually bump PyPi package version numbers.
 
+The app, its tests and its MariaDB course database run in one Docker container. See the [README](../README.md).
+
 ```console
 git pull
-make init
-source venv/bin/activate
+make docker-init    # build the image, start the container, create the course database
+make test           # run the unit tests in the container
+make coverage       # the same, with a coverage report
+make run            # run the app in the container
 ```
 
 ## ReactJS Setup

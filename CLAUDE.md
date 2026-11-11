@@ -24,13 +24,14 @@ change.** This file holds only what applies to nearly every task.
 2. **Never edit or print `.env`.** It holds the real OpenAI key and MySQL
    credentials. Read a setting's name from `.env.example` or
    `app/settings.py` instead.
-3. **Run the tests yourself** after any change (`make test`, about 10
-   seconds). Never ask the user to re-run them. Report failures honestly,
+3. **Run the tests yourself** after any change (`make test`, about 15
+   seconds, in the Docker container). Never ask the user to re-run them. Report failures honestly,
    including pre-existing ones.
 4. **Live, billable OpenAI calls are fine** during development. Some unit
    tests make them too, so every test run sends a few small requests.
-5. **Never write to the MySQL database** outside a mocked test. The database
-   in `.env` is shared. Tests patch `pymysql.connect` or the
+5. **Never write to the MySQL database** outside a mocked test. The app
+   connects as a read-only user to the MariaDB in its Docker container, and
+   `make docker-init` resets it. Tests patch `pymysql.connect` or the
    `DatabaseConnection` methods; follow that pattern.
 6. **The pre-commit hooks are the lint standard** (`make lint`), as in the
    other smarter-sh repositories. CI runs them on every file.
@@ -50,6 +51,8 @@ change.** This file holds only what applies to nearly every task.
 | `app/tests/`                    | `unittest` tests, one module per source module                               |
 | `data/`                         | Example YAML manifests used in the course                                    |
 | `doc/`                          | Contributor and course documentation                                         |
+| `Dockerfile`                    | One image: the app and a MariaDB server that holds the course database       |
+| `scripts/`                      | `create-course-database.sh` + `.sql`, copied from smarter-sh/stackademy      |
 | `requirements/in/*.in`          | Pinned inputs; `requirements/*.txt` are compiled from them by pip-compile    |
 | `.github/workflows/ci.yml`      | CI on pull requests: pre-commit, tests with coverage, Docker build           |
 | `.github/workflows/release.yml` | Push to main, alpha, beta: CI, then semantic-release                         |
@@ -59,16 +62,21 @@ change.** This file holds only what applies to nearly every task.
 
 ## Common commands
 
+The app, its tests and its MariaDB course database run in one Docker
+container, `agentic-ai-workflow`, which mounts `app/` and `pyproject.toml`.
+There is no virtual environment to set up.
+
 ```bash
-source venv/bin/activate          # every command below assumes this
-make test                         # python -m unittest discover -s app/
-make coverage                     # tests with a coverage report
-make run                          # run the app interactively
-make lint                         # every pre-commit hook on every file
+make docker-init                  # build, (re)create the container, create the database
+make test                         # python -m unittest discover -s app/, in the container
+make coverage                     # tests with a coverage report; copies out coverage.xml
+make run                          # run the app interactively, in the container
+make lint                         # every pre-commit hook on every file (pre-commit on PATH)
 ```
 
-`make init` deletes and recreates `venv` from `requirements/local.txt` and
-installs the git hooks. Ask before running it. `make release` starts the
+`make docker-init` replaces the container and resets the database; run it
+after a change to the `Dockerfile` or the requirements. Values in `.env` can
+be overridden on the command line, e.g. `make test MYSQL_HOST=127.0.0.1`. `make release` starts the
 Release workflow on GitHub; never run it.
 
 The host shell is zsh, which doesn't word-split variables: a file list in
