@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 """Stackademy application with MySQL database integration."""
 
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from openai.types.chat import ChatCompletionFunctionToolParam
 from pydantic import BaseModel, Field
@@ -31,10 +30,8 @@ class StackademySpecializationArea(str, Enum):
 class StackademyGetCoursesParams(BaseModel):
     """Parameters for the get_courses function."""
 
-    max_cost: Optional[float] = Field(
-        None, description="The maximum cost that a student is willing to pay for a course."
-    )
-    description: Optional[StackademySpecializationArea] = Field(
+    max_cost: float | None = Field(None, description="The maximum cost that a student is willing to pay for a course.")
+    description: StackademySpecializationArea | None = Field(
         None, description="Areas of specialization for courses in the catalogue."
     )
 
@@ -65,19 +62,22 @@ class Stackademy:
         logger.info(message)
 
     def tool_factory_get_courses(self) -> ChatCompletionFunctionToolParam:
-        """LLM Factory function to create a tool for getting courses"""
+        """LLM Factory function to create a tool for getting courses."""
         schema = StackademyGetCoursesParams.model_json_schema()
         return ChatCompletionFunctionToolParam(
             type="function",
             function={
                 "name": "get_courses",
-                "description": "returns up to 10 rows of course detail data, filtered by the maximum cost a student is willing to pay for a course and the area of specialization.",
+                "description": (
+                    "returns up to 10 rows of course detail data, filtered by the maximum cost a student "
+                    "is willing to pay for a course and the area of specialization."
+                ),
                 "parameters": schema,
             },
         )
 
     def tool_factory_register(self) -> ChatCompletionFunctionToolParam:
-        """LLMFactory function to create a tool for registering a user"""
+        """LLMFactory function to create a tool for registering a user."""
         schema = StackademyRegisterCourseParams.model_json_schema()
         return ChatCompletionFunctionToolParam(
             type="function",
@@ -102,7 +102,7 @@ class Stackademy:
             logger.error("Database connection test failed: %s", e)
             return False
 
-    def get_courses(self, description: Optional[str] = None, max_cost: Optional[float] = None) -> List[Dict[str, Any]]:
+    def get_courses(self, description: str | None = None, max_cost: float | None = None) -> list[dict[str, Any]]:
         """
         Retrieve a list of courses from the database.
 
@@ -135,7 +135,7 @@ class Stackademy:
 
         if max_cost is not None:
             where_conditions.append("c.cost <= %s")
-            params.append(max_cost)
+            params.append(str(max_cost))
 
         if where_conditions:
             query += " WHERE " + " AND ".join(where_conditions)
@@ -155,6 +155,7 @@ class Stackademy:
     def verify_course(self, course_code: str) -> bool:
         """
         Verify if a course exists in the database.
+
         Args:
             course_code (str): The course code to verify
         Returns:

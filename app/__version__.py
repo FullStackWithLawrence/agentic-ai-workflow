@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # DO NOT EDIT.
-# Managed via automated CI/CD in .github/workflows/semanticVersionBump.yml.
+# Managed by semantic-release, through release.config.js and scripts/bump_version.py.
 __version__ = "0.1.7"

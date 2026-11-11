@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=wrong-import-position
 # pylint: disable=R0801
 """Test Stackademy application."""
 
 # python stuff
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from app.exceptions import ConfigurationException
 from app.logging_config import get_logger

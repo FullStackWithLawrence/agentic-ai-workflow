@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Centralized logging configuration for the Stackademy application.
-"""
+"""Centralized logging configuration for the Stackademy application."""
 
 import logging
 import sys

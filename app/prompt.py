@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
 """
 Prompt engineering and management for Stackademy.
+
 Handles function calling and response parsing.
 """
 
 import json
-from typing import Optional, Union
+from typing import Union
 
 import openai
 from openai.types.chat import (
@@ -46,8 +46,10 @@ messages: MessagesType = [
             Do not provide answers that are not based on the functions available to you.
             Your task is to assist users with their queries related to the platform,
             including course information, enrollment procedures, and general support.
-            You should respond in a concise and clear manner, providing accurate information based on the user's request.
-            If you ask a follow up question, then place it at the bottom of the response and precede it with "QUESTION:".
+            You should respond in a concise and clear manner, providing accurate information based on
+            the user's request.
+            If you ask a follow up question, then place it at the bottom of the response and precede it
+            with "QUESTION:".
             """,
         name=LLM_ASSISTANT_NAME,
     ),
@@ -130,8 +132,8 @@ def process_tool_calls(message: ChatCompletionMessage) -> list[str]:
     return functions_called
 
 
-def completion(prompt: str) -> tuple[Optional[ChatCompletion], list[str]]:
-    """LLM text completion"""
+def completion(prompt: str) -> tuple[ChatCompletion | None, list[str]]:
+    """LLM text completion."""
 
     def handle_completion(tools, tool_choice) -> ChatCompletion:
         """Handle the OpenAI chat completion call."""

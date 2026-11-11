@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=wrong-import-position
 # pylint: disable=R0801,W0613,W0718
 """Test structured outputs."""

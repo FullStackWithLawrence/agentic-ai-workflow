@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Common constants for untit tests.
-"""
+"""Common constants for untit tests."""
 
 import os
 import sys

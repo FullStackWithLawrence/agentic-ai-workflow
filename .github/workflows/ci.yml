@@ -1,0 +1,113 @@
+---
+#------------------------------------------------------------------------------
+# Continuous integration: on every pull request, and as the first job of the
+# Release workflow, which runs on every push to main, alpha and beta.
+#
+# - lint: run the pre-commit hooks on every file.
+# - test: run the unit tests with coverage, and upload coverage.xml to Codecov.
+# - docker: build the Docker image, without pushing it.
+#
+# Secrets: OPENAI_API_KEY and the MYSQL_* settings, because app/settings.py
+# refuses to import without them, and a few tests call the OpenAI API. Every
+# test that touches MySQL mocks it. CODECOV_TOKEN for the coverage upload.
+# Pull requests from forks get no secrets, so their test job fails at import.
+#------------------------------------------------------------------------------
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  # release.yml runs the whole of CI before it releases anything.
+  workflow_call:
+    secrets:
+      OPENAI_API_KEY:
+        required: true
+      MYSQL_HOST:
+        required: true
+      MYSQL_PORT:
+        required: false
+      MYSQL_USER:
+        required: true
+      MYSQL_PASSWORD:
+        required: true
+      MYSQL_DATABASE:
+        required: true
+      CODECOV_TOKEN:
+        required: false
+
+permissions:
+  contents: read
+
+# a newer push to the same branch or pull request makes an older run obsolete. In a run
+# called by release.yml, github.workflow is "Release", so a push can't cancel a release's CI.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - name: Run the pre-commit hooks
+        run: |
+          pip install pre-commit
+          pre-commit run --all-files --show-diff-on-failure
+
+  test:
+    name: Python 3.13
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ENVIRONMENT: local
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+      MYSQL_PORT: ${{ secrets.MYSQL_PORT || '3306' }}
+      MYSQL_USER: ${{ secrets.MYSQL_USER }}
+      MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+      MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements/local.txt
+      - name: Install
+        run: pip install -r requirements/local.txt
+      - name: Test
+        run: |
+          coverage run -m unittest discover -s app/
+          coverage report
+          coverage xml
+      - name: Coverage summary
+        if: always()
+        run: |
+          echo "## Python coverage" >> "$GITHUB_STEP_SUMMARY"
+          coverage report --format=markdown >> "$GITHUB_STEP_SUMMARY" || echo "No coverage data was written." >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build the image
+        run: docker build -t agentic-ai-workflow:ci .

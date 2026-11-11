@@ -1,5 +1,17 @@
+// semantic-release, run by .github/workflows/release.yml.
+//
+// It reads the conventional commits since the last tag (fix: a patch release,
+// feat: a minor release, BREAKING CHANGE: a major release), writes the version
+// into app/__version__.py, pyproject.toml and the Dockerfile's image label
+// (scripts/bump_version.py), updates CHANGELOG.md, commits them, tags the
+// commit v<version>, and publishes a GitHub release. alpha and beta make
+// prereleases, e.g. 0.2.0-alpha.1.
 module.exports = {
-  dryRun: false,
+  branches: [
+    "main",
+    { name: "beta", prerelease: true },
+    { name: "alpha", prerelease: true },
+  ],
   plugins: [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
@@ -7,16 +19,9 @@ module.exports = {
       "@semantic-release/changelog",
       {
         changelogFile: "CHANGELOG.md",
-      },
-    ],
-    [
-      "@semantic-release/changelog",
-      {
-        changelogFile: "CHANGELOG.md",
         changelogTitle: `# Change Log\n\nAll notable changes to this project will be documented in this file.\n\nThe format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).\n\n`,
       },
     ],
-    "@semantic-release/github",
     [
       "@semantic-release/exec",
       {
@@ -26,18 +31,10 @@ module.exports = {
     [
       "@semantic-release/git",
       {
-        assets: [
-          "CHANGELOG.md",
-          "requirements/base.txt",
-          "app/__version__.py",
-          "pyproject.toml",
-          "Dockerfile",
-          "package.json",
-          "package-lock.json",
-        ],
-        message:
-          "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
+        assets: ["CHANGELOG.md", "app/__version__.py", "pyproject.toml", "Dockerfile"],
+        message: "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
       },
     ],
+    "@semantic-release/github",
   ],
 };

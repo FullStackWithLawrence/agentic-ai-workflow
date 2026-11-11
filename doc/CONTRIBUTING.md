@@ -56,7 +56,7 @@ Note that this project leverages Dependabot for managing version numbers of all 
 
 ```console
 git pull
-make init-dev
+make init
 source venv/bin/activate
 ```
 

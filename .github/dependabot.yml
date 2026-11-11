@@ -1,23 +1,15 @@
+# Monthly pull requests, against alpha, for the pinned Python requirements and the workflows' actions.
 version: 2
 updates:
   - package-ecosystem: "pip"
-    directory: "requirements/in/"
+    directory: "/requirements/in/"
     schedule:
       interval: "monthly"
+    target-branch: "alpha"
     labels:
       - "dependencies"
       - "python"
       - "automated pr"
-    target-branch: "alpha"
-  - package-ecosystem: "npm"
-    directory: "/"
-    labels:
-      - "dependencies"
-      - "javascript"
-      - "automated pr"
-    schedule:
-      interval: "monthly"
-    target-branch: "alpha"
   - package-ecosystem: "github-actions"
     directory: "/"
     labels:

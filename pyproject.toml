@@ -1,47 +1,52 @@
 [project]
 name = "StackademyAI"
 version = "0.1.7"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 description = "StackademyAI: an AI-powered marketing agent"
 authors = [{ name = "Lawrence McDaniel", email = "lpm0073@gmail.com" }]
 license = { file = "LICENSE" }
-keywords = ["AI", "API", "Python"]
+keywords = ["AI", "API", "OpenAI", "function calling", "agentic", "Python"]
 readme = "README.md"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.12",
-    "License :: OSI Approved :: GNU AGPL v3 or later (AGPLv3+)",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Operating System :: POSIX :: Linux",
     "Intended Audience :: Developers",
-    "Framework :: Django",
-    "Framework :: Django REST framework",
-    "Topic :: Software Development :: Libraries :: Application Interfaces",
-    "Topic :: Software Development :: Libraries :: API",
+    "Intended Audience :: Education",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Natural Language :: English",
-    "Development Status :: 4 - Beta"
+    "Development Status :: 4 - Beta",
 ]
+
+[project.urls]
+Homepage = "https://github.com/FullStackWithLawrence/agentic-ai-workflow"
+Source = "https://github.com/FullStackWithLawrence/agentic-ai-workflow"
+Issues = "https://github.com/FullStackWithLawrence/agentic-ai-workflow/issues"
+Changelog = "https://github.com/FullStackWithLawrence/agentic-ai-workflow/blob/main/CHANGELOG.md"
+
+# coverage.py, for make coverage and .github/workflows/ci.yml.
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/tests/*"]
+relative_files = true
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+
+[tool.mypy]
+files = ["app", "scripts"]
+python_version = "3.13"
 
 [tool.isort]
 profile = "black"
+line_length = 120
 
 [tool.black]
 line-length = 120
-target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | venv
-  | node_modules
-  | build
-  | buck-out
-  | build
-  | dist
-  | lambda_dist_pkg
-)/
-'''
+target-version = ["py313"]
+
+# pylint isn't one of the lint hooks, but editors run it. Match black and flake8.
+[tool.pylint.format]
+max-line-length = 120

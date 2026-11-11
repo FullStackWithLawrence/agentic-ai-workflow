@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=wrong-import-position
 # pylint: disable=R0801,C0115,W0613
 """Test prompt."""
@@ -159,7 +158,9 @@ class TestPrompt(unittest.TestCase):
 
     @patch(
         "app.prompt.openai.chat.completions.create",
-        side_effect=openai.AuthenticationError(message="auth error", response=dummy_response, body=None),  # type: ignore
+        side_effect=openai.AuthenticationError(
+            message="auth error", response=dummy_response, body=None  # type: ignore
+        ),
     )
     def test_handle_completion_authentication_error(self, mock_create):
         """Test that authentication errors during completion are handled."""
@@ -176,7 +177,8 @@ class TestPrompt(unittest.TestCase):
             prompt.completion("test prompt")
 
     @patch(
-        "app.prompt.openai.chat.completions.create", side_effect=openai.APIError(dummy_request, "api error", body=None)  # type: ignore
+        "app.prompt.openai.chat.completions.create",
+        side_effect=openai.APIError(dummy_request, "api error", body=None),  # type: ignore
     )
     def test_handle_completion_api_error(self, mock_create):
         """Test that API errors during completion are handled."""

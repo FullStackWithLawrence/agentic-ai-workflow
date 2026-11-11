@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Utility functions for Stackademy.
-"""
+"""Utility functions for Stackademy."""
 
 import json
 
