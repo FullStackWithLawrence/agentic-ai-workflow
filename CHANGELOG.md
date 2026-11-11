@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 
 
+## [0.1.8](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.7...v0.1.8) (2026-11-11)
+
+
+### Bug Fixes
+
+* **ci:** adopt the smarter-sh ci, release and lint standards ([2bbea95](https://github.com/FullStackWithLawrence/agentic-ai-workflow/commit/2bbea95da637057d9d4725143aea053ff6c4e5b9))
+
 ## [0.1.7](https://github.com/FullStackWithLawrence/agentic-ai-workflow/compare/v0.1.6...v0.1.7) (2026-05-21)
 
 
