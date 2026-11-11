@@ -45,7 +45,7 @@ class DatabaseConnection:
         """Return the database connection string."""
         return f"{self.user}@{self.host}:{self.port}/{self.database}"
 
-    def get_connection(self) -> pymysql.Connection:
+    def get_connection(self) -> "pymysql.Connection[pymysql.cursors.DictCursor]":
         """
         Create and return a new MySQL connection.
 
