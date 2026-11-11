@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 
 import httpx
 import openai
+from openai.types.chat import ChatCompletion
 
 from app import prompt
 
@@ -24,8 +25,110 @@ dummy_request = httpx.Request("GET", "https://example.com")
 dummy_response = DummyResponse()
 
 
+def make_completion(content: str | None, tool_calls: list[dict] | None = None) -> ChatCompletion:
+    """Return a ChatCompletion like the ones the OpenAI API returns."""
+    message: dict = {"role": "assistant", "content": content}
+    if tool_calls:
+        message["tool_calls"] = tool_calls
+    return ChatCompletion.model_validate(
+        {
+            "id": "chatcmpl-test",
+            "object": "chat.completion",
+            "created": 0,
+            "model": "gpt-4o-mini",
+            "choices": [
+                {
+                    "index": 0,
+                    "finish_reason": "tool_calls" if tool_calls else "stop",
+                    "message": message,
+                }
+            ],
+        }
+    )
+
+
+def make_tool_call(name: str, arguments: str, call_id: str = "call_1") -> dict:
+    """Return a function tool call, as it appears in a ChatCompletion."""
+    return {"id": call_id, "type": "function", "function": {"name": name, "arguments": arguments}}
+
+
 class TestPrompt(unittest.TestCase):
     """Test prompt."""
+
+    def setUp(self):
+        """Keep each test's messages out of the shared conversation."""
+        self.saved_messages = list(prompt.messages)
+
+    def tearDown(self):
+        """Restore the shared conversation."""
+        prompt.messages[:] = self.saved_messages
+
+    def test_process_tool_calls(self):
+        """Test that a tool call is run and its result added to the conversation."""
+        message = (
+            make_completion(None, [make_tool_call("get_courses", '{"description": "AI", "max_cost": 500}')])
+            .choices[0]
+            .message
+        )
+        with patch("app.prompt.handle_function_call", return_value='[{"course_code": "AI101"}]') as mock_handle:
+            functions_called = prompt.process_tool_calls(message)
+
+        self.assertEqual(functions_called, ["get_courses"])
+        mock_handle.assert_called_once_with("get_courses", {"description": "AI", "max_cost": 500})
+        assistant_message, tool_message = prompt.messages[-2], prompt.messages[-1]
+        self.assertEqual(assistant_message["role"], "assistant")
+        self.assertEqual(assistant_message["content"], "Accessing tool...")
+        self.assertEqual(assistant_message["tool_calls"][0]["function"]["name"], "get_courses")
+        self.assertEqual(tool_message["role"], "tool")
+        self.assertEqual(tool_message["tool_call_id"], "call_1")
+        self.assertEqual(tool_message["content"], '[{"course_code": "AI101"}]')
+
+    def test_process_tool_calls_keeps_content(self):
+        """Test that the model's own text is kept with its tool call."""
+        message = (
+            make_completion("Let me look that up.", [make_tool_call("register_course", '{"course_code": "CS107"}')])
+            .choices[0]
+            .message
+        )
+        with patch("app.prompt.handle_function_call", return_value='{"success": true}'):
+            functions_called = prompt.process_tool_calls(message)
+
+        self.assertEqual(functions_called, ["register_course"])
+        self.assertEqual(prompt.messages[-2]["content"], "Let me look that up.")
+
+    def test_completion_runs_tool_calls(self):
+        """Test that completion runs the model's tool calls, then returns its answer."""
+        responses = [
+            make_completion(None, [make_tool_call("get_courses", "{}")]),
+            make_completion("Here are the courses."),
+        ]
+        with (
+            patch("app.prompt.openai.chat.completions.create", side_effect=responses) as mock_create,
+            patch("app.prompt.handle_function_call", return_value="[]"),
+        ):
+            response, functions_called = prompt.completion("Show me the courses.")
+
+        self.assertEqual(response.choices[0].message.content, "Here are the courses.")
+        self.assertEqual(functions_called, ["get_courses"])
+        self.assertEqual(mock_create.call_count, 2)
+        # The second call offers both tools, and lets the model choose.
+        second_call = mock_create.call_args_list[1].kwargs
+        self.assertEqual(len(second_call["tools"]), 2)
+        self.assertEqual(second_call["tool_choice"], "auto")
+
+    def test_completion_stops_on_goodbye(self):
+        """Test that completion stops at "Goodbye!" even when the model also calls a tool."""
+        goodbye = make_completion("Goodbye!", [make_tool_call("get_courses", "{}")])
+        with (
+            patch("app.prompt.openai.chat.completions.create", return_value=goodbye) as mock_create,
+            patch("app.prompt.handle_function_call") as mock_handle,
+        ):
+            response, functions_called = prompt.completion("That's all, thanks.")
+
+        self.assertIs(response, goodbye)
+        self.assertEqual(functions_called, [])
+        mock_create.assert_called_once()
+        mock_handle.assert_not_called()
 
     def test_handle_function_call_get_courses(self):
         """Test that get_courses function call is handled correctly."""
