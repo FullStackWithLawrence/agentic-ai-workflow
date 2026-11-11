@@ -30,7 +30,7 @@ iniconfig>=2.3.1,<3.0.0
 jmespath>=1.1.0,<2.0.0
 
 # Lightweight pipelining and parallelization; used by scikit-learn and other scientific packages.
-joblib>=1.5.2,<2.0.0
+joblib>=1.6.0,<2.0.0
 
 # URL parsing for Markdown; indirect dependency of markdown-it-py, used by rich and other Markdown rendering tools.
 mdurl>=0.1.2,<1.1.0
