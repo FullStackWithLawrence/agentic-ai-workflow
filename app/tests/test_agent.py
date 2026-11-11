@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=wrong-import-position
 # pylint: disable=R0801,C0115,W0613
 """Test application."""
@@ -20,7 +19,8 @@ class TestApplication(unittest.TestCase):
         # pylint: disable=broad-exception-caught
         prompts = (
             "Show me a list of available courses.",
-            "I would like to register for the CS107 Algorithms course. My name is John Doe and my email is john.doe@example.com",
+            "I would like to register for the CS107 Algorithms course. "
+            "My name is John Doe and my email is john.doe@example.com",
             "Thank you, that's all for now. Goodbye!",
             "Goodbye!",
             "Go away!",

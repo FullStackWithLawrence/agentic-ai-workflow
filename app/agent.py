@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-User registration and management for Stackademy.
-"""
-
-from typing import Optional, Tuple
+"""User registration and management for Stackademy."""
 
 from .logging_config import get_logger, setup_logging
 from .prompt import completion
@@ -12,7 +7,7 @@ setup_logging()
 logger = get_logger(__name__)
 
 
-def main(prompts: Optional[Tuple[str, ...]] = None) -> None:
+def main(prompts: tuple[str, ...] | None = None) -> None:
     """Main function to demonstrate user registration."""
     print("=" * 50)
     print("Stackademy User Registration Demo")

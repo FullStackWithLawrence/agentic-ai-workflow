@@ -1,0 +1,91 @@
+---
+#------------------------------------------------------------------------------
+# Release: on every push to main (a release) or alpha or beta (a prerelease).
+# It can also be started by hand from the Actions tab, or with make
+# release-dry-run (CI, then the next version, without releasing) and make
+# release.
+#
+# A push whose commits since the last tag are all docs, ci, build, chore,
+# style, refactor or test runs CI and releases nothing. semantic-release's own
+# commit ends in [skip ci], so it doesn't start another run.
+#
+#   ci        the whole CI workflow (lint, tests, Docker build)
+#   release   semantic-release: version, CHANGELOG.md, tag, GitHub release
+#
+# Secrets: those of ci.yml, and PAT, which semantic-release pushes and
+# releases with: GITHUB_TOKEN is read-only.
+#------------------------------------------------------------------------------
+name: Release
+
+on:
+  push:
+    branches: [main, alpha, beta]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: run CI and report the next version, without releasing"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+# one release at a time per branch. A push while a release runs waits for it, and the next run
+# releases everything since the last tag.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+    secrets:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+      MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
+      MYSQL_USER: ${{ secrets.MYSQL_USER }}
+      MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+      MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  release:
+    name: Semantic release
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # scripts/bump_version.py, which semantic-release's exec plugin runs.
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - name: Semantic release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@ad51787758d9654d5a75150a89a6fa9b3ccef95e # v8.1.4
+        with:
+          # inputs.dry_run is empty on a push, which is a real release.
+          dry_run: ${{ inputs.dry_run == true }}
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/exec
+            @semantic-release/git
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: github-actions[bot]@users.noreply.github.com
+      - name: Summary
+        run: |
+          {
+            echo "### Release"
+            echo "- Branch: ${{ github.ref_name }}"
+            echo "- Trigger: ${{ github.event_name }}"
+            echo "- Dry run: ${{ inputs.dry_run == true }}"
+            echo "- Last release: ${{ steps.semantic.outputs.last_release_version || 'none' }}"
+            echo "- Next release: ${{ steps.semantic.outputs.new_release_version || 'none' }}"
+          } >> "$GITHUB_STEP_SUMMARY"

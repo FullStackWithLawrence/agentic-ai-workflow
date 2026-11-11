@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
 """Database connection and utilities for MySQL."""
 
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any
 
 import pymysql
 
@@ -98,7 +98,7 @@ class DatabaseConnection:
             if connection:
                 connection.close()
 
-    def execute_query(self, query: str, params: Optional[tuple] = None) -> List[Dict[str, Any]]:
+    def execute_query(self, query: str, params: tuple | None = None) -> list[dict[str, Any]]:
         """
         Execute a SELECT query and return results.
 
@@ -114,7 +114,7 @@ class DatabaseConnection:
             cursor.execute(query, params or ())
             return list(cursor.fetchall())
 
-    def execute_update(self, query: str, params: Optional[tuple] = None) -> int:
+    def execute_update(self, query: str, params: tuple | None = None) -> int:
         """
         Execute an INSERT, UPDATE, or DELETE query.
 

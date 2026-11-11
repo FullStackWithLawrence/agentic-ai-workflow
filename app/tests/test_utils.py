@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=wrong-import-position
 # pylint: disable=R0801,C0115
 """Test utils."""
 
 # python stuff
 import unittest
-from unittest.mock import patch
 
 from app import utils
 

@@ -24,33 +24,28 @@ __pycache__
 .pytest_cache
 
 # Python
-venv
-.venv
-.pytest_cache
-*.pyc
-*.pyo
-*.pyd
-*.swp
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# tools
+.coverage
+.coverage.*
+coverage.xml
+coverage.out
+htmlcov/
+.pytest_cache/
+.mypy_cache/
 *.log
 
-# .tfstate files
-.terraform.lock.hcl
-*.tfstate
-*.tfstate.*
+# editors and operating systems. .vscode/ is committed: it points VS Code at venv/.
+.DS_Store
+.idea/
+*.swp
+.ipynb_checkpoints
 
-
-# ignore this file
-!tfmodule-template.tf
-
-# tardigrade-ci
-tardigrade-ci/
-.tardigrade-ci
-
-# go tests
-tests/go.*
-
-# ReactJS
-client/node_modules/
-node_modules
-
+# node, for the commitlint hook
+node_modules/
 package-lock.json

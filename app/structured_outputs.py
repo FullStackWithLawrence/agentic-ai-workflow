@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
 """EXPERIMENTAL: OpenAI's structured outputs with Pydantic models."""
-
-import json
-from typing import List, Optional
 
 import openai
 from pydantic import BaseModel, Field, ValidationError
@@ -24,14 +20,14 @@ class Course(BaseModel):
     course_name: str = Field(description="The name of the course")
     description: str = Field(description="Course description")
     cost: float = Field(description="Cost of the course")
-    prerequisite_course_code: Optional[str] = Field(description="Prerequisite course code", default=None)
-    prerequisite_course_name: Optional[str] = Field(description="Prerequisite course name", default=None)
+    prerequisite_course_code: str | None = Field(description="Prerequisite course code", default=None)
+    prerequisite_course_name: str | None = Field(description="Prerequisite course name", default=None)
 
 
 class CourseSearchResponse(BaseModel):
     """Response model for course search results."""
 
-    courses: List[Course] = Field(description="List of courses matching the search criteria")
+    courses: list[Course] = Field(description="List of courses matching the search criteria")
     total_count: int = Field(description="Total number of courses found")
 
 
@@ -40,14 +36,14 @@ class RegistrationResponse(BaseModel):
 
     success: bool = Field(description="Whether the registration was successful")
     message: str = Field(description="Human-readable message about the registration result")
-    registration_id: Optional[str] = Field(description="Unique registration ID if successful", default=None)
+    registration_id: str | None = Field(description="Unique registration ID if successful", default=None)
 
 
 logger = get_logger(__name__)
 
 
 def get_courses_with_structured_output(
-    description: Optional[str] = None, max_cost: Optional[float] = None
+    description: str | None = None, max_cost: float | None = None
 ) -> CourseSearchResponse:
     """
     Get courses using structured output parsing.
@@ -88,9 +84,7 @@ def get_courses_with_structured_output(
 
 
 def register_course_with_structured_output(course_code: str, email: str, full_name: str) -> RegistrationResponse:
-    """
-    Register for a course using structured output.
-    """
+    """Register for a course using structured output."""
     try:
         # Validate input parameters
         params = StackademyRegisterCourseParams(course_code=course_code, email=email, full_name=full_name)

@@ -1,7 +1,19 @@
 {
-  "cornflakes.linter.executablePath": "venv/bin/flake8",
+  "python.defaultInterpreterPath": "${workspaceFolder}/venv/bin/python",
+  "python.testing.unittestEnabled": true,
+  "python.testing.pytestEnabled": false,
+  "python.testing.unittestArgs": ["-s", "./app", "-p", "test_*.py"],
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter"
   },
-  "python-envs.defaultEnvManager": "ms-python.python:venv"
+  "black-formatter.path": ["${workspaceFolder}/venv/bin/black"],
+  "flake8.path": ["${workspaceFolder}/venv/bin/flake8"],
+  "cornflakes.linter.executablePath": "${workspaceFolder}/venv/bin/flake8",
+  "search.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/venv": true
+  },
+  "prettier.printWidth": 120
 }
